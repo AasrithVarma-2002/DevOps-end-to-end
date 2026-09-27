@@ -1,0 +1,24 @@
+# Java / Maven
+app/target/
+*.class
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+
+# Secrets - never commit
+.env
+*.pem
+*.key
+*credentials*
+*.csv
