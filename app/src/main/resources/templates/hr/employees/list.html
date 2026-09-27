@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Employees')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-employees')}"></header>
+<main>
+    <div class="page-head">
+        <div><h1>Employees</h1><p class="muted" th:text="${#lists.size(employees)} + ' shown'">0 shown</p></div>
+        <a class="btn primary" th:href="@{/hr/employees/new}">Onboard new hire</a>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <form class="filters" method="get" th:action="@{/hr/employees}">
+        <input type="search" name="q" th:value="${q}" placeholder="Search name, email, code or title" aria-label="Search">
+        <select name="departmentId" aria-label="Department">
+            <option value="">All departments</option>
+            <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}" th:selected="${d.id == departmentId}"></option>
+        </select>
+        <select name="status" aria-label="Status">
+            <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">Active</option>
+            <option value="EXITED" th:selected="${status == 'EXITED'}">Exited</option>
+            <option value="ALL" th:selected="${status == 'ALL'}">All</option>
+        </select>
+        <button type="submit" class="btn">Filter</button>
+    </form>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Code</th><th>Name</th><th>Title</th><th>Department</th><th>Manager</th><th>Joined</th><th>Status</th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(employees)}"><td colspan="7" class="empty">No employees match.</td></tr>
+            <tr th:each="e : ${employees}">
+                <td class="num" th:text="${e.employeeCode}"></td>
+                <td><a th:href="@{/hr/employees/{id}(id=${e.id})}" th:text="${e.fullName}"></a>
+                    <div class="small muted" th:text="${e.email}"></div></td>
+                <td th:text="${e.jobTitle}"></td>
+                <td th:text="${e.department.name}"></td>
+                <td th:text="${e.managerName} ?: '—'"></td>
+                <td class="num" th:text="${#temporals.format(e.joiningDate, 'd MMM yyyy')}"></td>
+                <td><span class="pill" th:classappend="'st-' + ${#strings.toLowerCase(e.status)}" th:text="${e.status}"></span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

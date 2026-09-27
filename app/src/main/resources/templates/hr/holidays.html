@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Holiday calendar')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-holidays')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1 th:text="'Public holidays ' + ${year}">Holidays</h1>
+            <p class="muted">Holidays are not counted as leave days.</p></div>
+        <div class="tabs">
+            <a th:href="@{/hr/holidays(year=${year - 1})}" th:text="${year - 1}"></a>
+            <a class="active" th:text="${year}"></a>
+            <a th:href="@{/hr/holidays(year=${year + 1})}" th:text="${year + 1}"></a>
+        </div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Date</th><th>Holiday</th><th></th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(holidays)}"><td colspan="3" class="empty">No holidays for this year yet.</td></tr>
+            <tr th:each="h : ${holidays}">
+                <td class="num" th:text="${#temporals.format(h.date, 'EEE, d MMM yyyy')}"></td>
+                <td th:text="${h.name}"></td>
+                <td class="num">
+                    <form method="post" th:action="@{/hr/holidays/{id}/delete(id=${h.id}, year=${year})}">
+                        <button type="submit" class="btn small danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <form class="card form" method="post" th:action="@{/hr/holidays}">
+        <h2>Add a holiday</h2>
+        <div class="fields">
+            <label for="date">Date <input id="date" type="date" name="date" required></label>
+            <label for="hname">Name <input id="hname" name="name" required maxlength="100" placeholder="Diwali"></label>
+        </div>
+        <div class="actions"><button type="submit" class="btn primary">Add holiday</button></div>
+    </form>
+</main>
+</body>
+</html>

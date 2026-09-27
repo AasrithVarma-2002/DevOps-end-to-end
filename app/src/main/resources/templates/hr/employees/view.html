@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${employee.fullName})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-employees')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div>
+            <h1 th:text="${employee.fullName}">Name</h1>
+            <p class="muted" th:text="${employee.employeeCode} + ' · ' + ${employee.jobTitle} + ' · ' + ${employee.department.name}"></p>
+        </div>
+        <div class="actions" th:if="${employee.active}">
+            <a class="btn" th:href="@{/hr/employees/{id}/edit(id=${employee.id})}">Edit</a>
+            <a class="btn danger" th:href="@{/hr/employees/{id}/offboard(id=${employee.id})}">Offboard</a>
+        </div>
+    </div>
+
+    <div class="alert success" th:if="${onboardedName}">
+        <strong th:text="${onboardedName} + ' has been onboarded.'"></strong>
+        Share these sign-in details with them securely. They must choose a new password when they first sign in.<br>
+        Login: <span class="credentials" th:text="${onboardedUsername}"></span>
+        Temporary password: <span class="credentials" th:text="${onboardedPassword}"></span>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="alert warn" th:unless="${employee.active}"
+         th:text="'Left the company. Last working day ' + ${employee.lastWorkingDay} + ' (' + ${employee.exitReason} + ').'"></div>
+
+    <div class="grid-2">
+        <section class="card">
+            <h2>Employment</h2>
+            <dl class="details">
+                <dt>Email / login</dt><dd th:text="${employee.email}"></dd>
+                <dt>Manager</dt><dd th:text="${employee.managerName} ?: 'None (leave goes to HR)'"></dd>
+                <dt>Monthly salary</dt><dd class="num" th:text="'₹ ' + ${#numbers.formatDecimal(employee.salary, 1, 'COMMA', 2, 'POINT')}"></dd>
+                <dt>Joining date</dt><dd th:text="${#temporals.format(employee.joiningDate, 'd MMM yyyy')}"></dd>
+                <dt>Status</dt><dd><span class="pill" th:classappend="'st-' + ${#strings.toLowerCase(employee.status)}" th:text="${employee.status}"></span></dd>
+                <dt>Access level</dt><dd><span class="pill st-role" th:if="${account}" th:text="${account.role.label}"></span></dd>
+                <dt>Login</dt>
+                <dd th:if="${account}">
+                    <span th:if="${account.locked}" class="pill st-locked">Locked</span>
+                    <span th:unless="${account.enabled}" class="pill st-disabled">Disabled</span>
+                    <span th:if="${account.enabled and !account.locked}" class="pill st-active">Active</span>
+                    <span class="small muted" th:text="${account.lastLoginAt} ? ' last sign-in ' + ${#temporals.format(account.lastLoginAt, 'd MMM yyyy HH:mm')} : ' never signed in'"></span>
+                </dd>
+            </dl>
+        </section>
+        <section class="card">
+            <h2>Profile</h2>
+            <p class="muted small" th:unless="${employee.profileCompleted}">The employee has not completed their profile yet.</p>
+            <dl class="details">
+                <dt>Phone</dt><dd th:text="${employee.phone} ?: '—'"></dd>
+                <dt>Address</dt><dd th:text="${employee.address} ?: '—'"></dd>
+                <dt>Emergency contact</dt>
+                <dd th:text="${employee.emergencyContactName} ? ${employee.emergencyContactName} + ' (' + ${employee.emergencyContactPhone} + ')' : '—'"></dd>
+                <dt>Direct reports</dt>
+                <dd><span th:if="${#lists.isEmpty(reports)}">None</span>
+                    <span th:each="r, st : ${reports}"><a th:href="@{/hr/employees/{id}(id=${r.id})}" th:text="${r.fullName}"></a><span th:unless="${st.last}">, </span></span></dd>
+            </dl>
+        </section>
+    </div>
+
+    <section>
+        <h2>Leave balance this year</h2>
+        <div th:replace="~{fragments/layout :: balances(${balances})}"></div>
+    </section>
+
+    <section>
+        <h2>Leave history</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Type</th><th>Dates</th><th class="num">Days</th><th>Status</th><th>Reason</th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(requests)}"><td colspan="5" class="empty">No leave requests.</td></tr>
+                <tr th:each="r : ${requests}">
+                    <td th:text="${r.type.label}"></td>
+                    <td th:text="${r.startDate == r.endDate} ? ${r.startDate} : ${r.startDate} + ' → ' + ${r.endDate}"></td>
+                    <td class="num" th:text="${r.days.stripTrailingZeros().toPlainString()}"></td>
+                    <td><span th:replace="~{fragments/layout :: leaveStatus(${r.status})}"></span></td>
+                    <td class="small" th:text="${r.reason} ?: '—'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

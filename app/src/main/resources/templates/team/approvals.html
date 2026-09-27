@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Team approvals')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('team-approvals')}"></header>
+<main>
+    <div class="page-head">
+        <div><h1>Team approvals</h1>
+            <p class="muted">Requests from your direct reports. Leave of more than
+                <span th:text="${threshold}">5</span> days goes to HR after you approve it.</p></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th class="num">Days</th><th>Reason</th><th>Decision</th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(requests)}"><td colspan="6" class="empty">Nothing is waiting for you.</td></tr>
+            <tr th:each="r : ${requests}">
+                <td><strong th:text="${r.employeeName}"></strong>
+                    <div class="small muted" th:text="'Requested ' + ${#temporals.format(r.createdAt, 'd MMM, HH:mm')}"></div></td>
+                <td th:text="${r.type.label} + (${r.halfDay} ? ' (half)' : '')"></td>
+                <td th:text="${r.startDate == r.endDate} ? ${r.startDate} : ${r.startDate} + ' → ' + ${r.endDate}"></td>
+                <td class="num"><span th:text="${r.days.stripTrailingZeros().toPlainString()}"></span>
+                    <div class="small muted" th:if="${r.days.compareTo(threshold) > 0}">needs HR too</div></td>
+                <td class="small" th:text="${r.reason} ?: '—'"></td>
+                <td>
+                    <form class="decision" method="post" th:action="@{/team/approvals/{id}/approve(id=${r.id})}">
+                        <input name="comment" th:id="'c' + ${r.id}" placeholder="Comment (optional)" maxlength="500" aria-label="Comment">
+                        <button type="submit" class="btn small approve">Approve</button>
+                        <button type="submit" class="btn small danger" th:formaction="@{/team/approvals/{id}/reject(id=${r.id})}">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

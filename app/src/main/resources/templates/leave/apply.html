@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Apply for leave')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('leave')}"></header>
+<main class="stack">
+    <div class="page-head"><h1>Apply for leave</h1></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div th:replace="~{fragments/layout :: balances(${balances})}"></div>
+
+    <div class="grid-2">
+        <form class="card form" th:action="@{/leave}" method="post">
+            <label for="type">Leave type
+                <select id="type" name="type" required>
+                    <option th:each="t : ${types}" th:value="${t}" th:text="${t.label}"
+                            th:selected="${form != null and form.type() == t}"></option>
+                </select></label>
+            <div class="fields">
+                <label for="startDate">From
+                    <input id="startDate" type="date" name="startDate" required
+                           th:value="${form != null} ? ${form.startDate()} : ${today}"></label>
+                <label for="endDate">To
+                    <input id="endDate" type="date" name="endDate"
+                           th:value="${form != null} ? ${form.endDate()} : ${today}"></label>
+            </div>
+            <label class="check" for="halfDay">
+                <input id="halfDay" type="checkbox" name="halfDay" value="true" th:checked="${form != null and form.halfDay()}">
+                Half day (single date only)</label>
+            <label for="reason">Reason <span class="hint">optional</span>
+                <textarea id="reason" name="reason" rows="3" maxlength="500"
+                          th:text="${form != null} ? ${form.reason()} : ''"></textarea></label>
+            <div class="actions">
+                <button type="submit" class="btn primary">Submit request</button>
+                <a class="btn" th:href="@{/leave}">Cancel</a>
+            </div>
+        </form>
+
+        <section class="card">
+            <h2>How leave is counted</h2>
+            <ul class="small">
+                <li>Only working days count. Weekends and public holidays are skipped.</li>
+                <li>Your manager approves first. Leave of more than
+                    <strong th:text="${threshold}">5</strong> working days also needs HR approval.</li>
+                <li>Days come off your balance once the request is fully approved. Cancelling approved leave returns them.</li>
+                <li>Sick leave can be recorded up to 7 days after the fact. Other leave must be for today or later.</li>
+            </ul>
+            <h2 style="margin-top:16px" th:text="'Public holidays ' + ${today.year}">Holidays</h2>
+            <p class="muted small" th:if="${#lists.isEmpty(holidays)}">No holidays have been added yet.</p>
+            <table th:unless="${#lists.isEmpty(holidays)}">
+                <tbody><tr th:each="h : ${holidays}">
+                    <td class="num" th:text="${#temporals.format(h.date, 'EEE d MMM')}"></td><td th:text="${h.name}"></td>
+                </tr></tbody>
+            </table>
+        </section>
+    </div>
+</main>
+</body>
+</html>

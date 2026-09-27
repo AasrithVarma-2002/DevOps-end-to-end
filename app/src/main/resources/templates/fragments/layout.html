@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · HR Portal Pro'">HR Portal Pro</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header th:fragment="nav(active)" class="topbar">
+    <a class="brand" th:href="@{/}">HR Portal <span>Pro</span></a>
+    <nav class="menu" th:if="${me != null}">
+        <a th:href="@{/}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
+        <th:block th:if="${me.hasEmployeeRecord()}">
+            <a th:href="@{/leave}" th:classappend="${active == 'leave'} ? 'active'">My leave</a>
+        </th:block>
+        <th:block th:if="${me.isManager() and me.hasEmployeeRecord()}">
+            <a th:href="@{/team}" th:classappend="${active == 'team'} ? 'active'">My team</a>
+            <a th:href="@{/team/approvals}" th:classappend="${active == 'team-approvals'} ? 'active'">Team approvals</a>
+        </th:block>
+        <th:block th:if="${me.isHr()}">
+            <span class="menu-sep" aria-hidden="true"></span>
+            <a th:href="@{/hr/employees}" th:classappend="${active == 'hr-employees'} ? 'active'">Employees</a>
+            <a th:href="@{/hr/approvals}" th:classappend="${active == 'hr-approvals'} ? 'active'">HR approvals</a>
+            <a th:href="@{/hr/leave}" th:classappend="${active == 'hr-leave'} ? 'active'">All leave</a>
+            <a th:href="@{/hr/departments}" th:classappend="${active == 'hr-departments'} ? 'active'">Departments</a>
+            <a th:href="@{/hr/holidays}" th:classappend="${active == 'hr-holidays'} ? 'active'">Holidays</a>
+            <a th:href="@{/hr/audit}" th:classappend="${active == 'hr-audit'} ? 'active'">Audit log</a>
+        </th:block>
+        <th:block th:if="${me.isSuperAdmin()}">
+            <a th:href="@{/admin/users}" th:classappend="${active == 'admin-users'} ? 'active'">Users</a>
+        </th:block>
+    </nav>
+    <div class="user" th:if="${me != null}">
+        <a class="bell" th:href="@{/notifications}" title="Notifications">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2Z"/></svg>
+            <span class="count" th:if="${me.unreadNotifications() > 0}" th:text="${me.unreadNotifications()}">3</span>
+            <span class="sr-only">Notifications</span>
+        </a>
+        <details class="user-menu">
+            <summary>
+                <span class="name" th:text="${me.displayName()}">Name</span>
+                <span class="role" th:text="${me.role().label}">Role</span>
+            </summary>
+            <div class="dropdown">
+                <a th:if="${me.hasEmployeeRecord()}" th:href="@{/profile}">My profile</a>
+                <a th:href="@{/account/password}">Change password</a>
+                <form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>
+            </div>
+        </details>
+    </div>
+</header>
+
+<div th:fragment="flash" th:if="${success != null or error != null}">
+    <div class="alert success" role="status" th:if="${success}" th:text="${success}"></div>
+    <div class="alert error" role="alert" th:if="${error}" th:text="${error}"></div>
+</div>
+
+<!-- status pill for a leave request -->
+<span th:fragment="leaveStatus(status)" class="pill" th:classappend="${'st-' + #strings.toLowerCase(status.name())}"
+      th:text="${status.label}">Status</span>
+
+<!-- "3 days" / "0.5 day" -->
+<span th:fragment="days(value)" class="num"
+      th:text="${value.stripTrailingZeros().toPlainString()}">1</span>
+
+<!-- leave balance cards; list of LeaveService.BalanceView -->
+<div th:fragment="balances(list)" class="balances">
+    <div class="balance" th:each="b : ${list}">
+        <div class="type" th:text="${b.type().label}">Annual</div>
+        <th:block th:if="${b.isLimited()}">
+            <div class="left num">
+                <span th:text="${b.available().stripTrailingZeros().toPlainString()}">12</span>
+                <small th:text="'of ' + ${b.allocated().stripTrailingZeros().toPlainString()} + ' left'">of 20 left</small>
+            </div>
+            <div class="meter" role="img" th:attr="aria-label=${b.usedPercent()} + '% used'">
+                <span th:style="'width:' + ${b.usedPercent()} + '%'"></span>
+            </div>
+            <div class="detail">
+                <span th:text="${b.used().stripTrailingZeros().toPlainString()} + ' used'">8 used</span>
+                <span th:if="${b.pending().signum() > 0}"
+                      th:text="' · ' + ${b.pending().stripTrailingZeros().toPlainString()} + ' pending'"></span>
+            </div>
+        </th:block>
+        <th:block th:unless="${b.isLimited()}">
+            <div class="left num"><span>No limit</span></div>
+            <div class="detail" th:text="${b.used().stripTrailingZeros().toPlainString()} + ' taken this year'
+                + (${b.pending().signum() > 0} ? ' · ' + ${b.pending().stripTrailingZeros().toPlainString()} + ' pending' : '')">0 taken</div>
+        </th:block>
+    </div>
+</div>
+
+</body>
+</html>

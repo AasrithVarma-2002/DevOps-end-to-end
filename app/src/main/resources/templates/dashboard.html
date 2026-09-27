@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('dashboard')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div>
+            <h1 th:text="${employee != null} ? 'Hello, ' + ${employee.firstName} : 'Dashboard'">Hello</h1>
+            <p class="muted" th:text="${#temporals.format(today, 'EEEE, d MMMM yyyy')}">Monday</p>
+        </div>
+        <a class="btn primary" th:if="${employee != null}" th:href="@{/leave/apply}">Apply for leave</a>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <!-- counts that need action -->
+    <section class="tiles" th:if="${teamPending != null or hrPending != null}">
+        <a class="tile" th:if="${teamPending != null}" th:href="@{/team/approvals}"
+           th:classappend="${teamPending > 0} ? 'attention'">
+            <span class="value" th:text="${teamPending}">0</span>
+            <span class="label">Team requests waiting for you</span>
+        </a>
+        <a class="tile" th:if="${teamSize != null}" th:href="@{/team}">
+            <span class="value" th:text="${teamSize}">0</span>
+            <span class="label">Direct reports</span>
+        </a>
+        <a class="tile" th:if="${hrPending != null}" th:href="@{/hr/approvals}"
+           th:classappend="${hrPending > 0} ? 'attention'">
+            <span class="value" th:text="${hrPending}">0</span>
+            <span class="label">Waiting for HR approval</span>
+        </a>
+        <a class="tile" th:if="${activeEmployees != null}" th:href="@{/hr/employees}">
+            <span class="value" th:text="${activeEmployees}">0</span>
+            <span class="label">Active employees</span>
+        </a>
+    </section>
+
+    <section th:if="${balances != null}">
+        <h2 th:text="'My leave balance ' + ${today.year}">My leave balance</h2>
+        <div th:replace="~{fragments/layout :: balances(${balances})}"></div>
+    </section>
+
+    <div class="grid-2">
+        <section class="card" th:if="${upcoming != null}">
+            <h2>My upcoming leave</h2>
+            <p class="muted" th:if="${#lists.isEmpty(upcoming)}">No upcoming leave.</p>
+            <table th:unless="${#lists.isEmpty(upcoming)}">
+                <thead><tr><th>Type</th><th>Dates</th><th class="num">Days</th><th>Status</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${upcoming}">
+                    <td th:text="${r.type.label}"></td>
+                    <td th:text="${r.startDate == r.endDate} ? ${r.startDate} : ${r.startDate} + ' → ' + ${r.endDate}"></td>
+                    <td class="num" th:text="${r.days.stripTrailingZeros().toPlainString()}"></td>
+                    <td><span th:replace="~{fragments/layout :: leaveStatus(${r.status})}"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="card" th:if="${teamOut != null}">
+            <h2>My team out today</h2>
+            <p class="muted" th:if="${#lists.isEmpty(teamOut)}">Everyone on your team is in today.</p>
+            <ul th:unless="${#lists.isEmpty(teamOut)}">
+                <li th:each="r : ${teamOut}"><strong th:text="${r.employeeName}"></strong>
+                    <span class="muted" th:text="' · ' + ${r.type.label} + ' until ' + ${r.endDate}"></span></li>
+            </ul>
+        </section>
+
+        <section class="card" th:if="${outToday != null}">
+            <h2>Company: out of office today</h2>
+            <p class="muted" th:if="${#lists.isEmpty(outToday)}">Nobody is on leave today.</p>
+            <ul th:unless="${#lists.isEmpty(outToday)}">
+                <li th:each="r : ${outToday}"><strong th:text="${r.employeeName}"></strong>
+                    <span class="muted" th:text="' · ' + ${r.employee.department.name} + ' · until ' + ${r.endDate}"></span></li>
+            </ul>
+        </section>
+    </div>
+
+    <section class="card" th:if="${employee == null and hrPending == null}">
+        <p>This account has no employee record. Use <a th:href="@{/admin/users}">Users</a> to manage logins.</p>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HR approvals')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-approvals')}"></header>
+<main>
+    <div class="page-head">
+        <div><h1>HR approvals</h1>
+            <p class="muted">Long leave approved by a manager, and requests from employees without a manager.</p></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th class="num">Days</th><th>Manager</th><th>Decision</th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(requests)}"><td colspan="6" class="empty">Nothing is waiting for HR.</td></tr>
+            <tr th:each="r : ${requests}">
+                <td><strong th:text="${r.employeeName}"></strong>
+                    <div class="small muted" th:text="${r.employee.department.name}"></div>
+                    <div class="small" th:if="${r.reason}" th:text="'“' + ${r.reason} + '”'"></div></td>
+                <td th:text="${r.type.label}"></td>
+                <td th:text="${r.startDate == r.endDate} ? ${r.startDate} : ${r.startDate} + ' → ' + ${r.endDate}"></td>
+                <td class="num" th:text="${r.days.stripTrailingZeros().toPlainString()}"></td>
+                <td class="small">
+                    <span th:if="${r.managerDecidedAt}" th:text="'Approved by ' + ${r.managerName}"></span>
+                    <span th:unless="${r.managerDecidedAt}" class="muted">No manager step</span>
+                    <div th:if="${r.managerComment}" th:text="'“' + ${r.managerComment} + '”'"></div>
+                </td>
+                <td>
+                    <form class="decision" method="post" th:action="@{/hr/approvals/{id}/approve(id=${r.id})}">
+                        <input name="comment" th:id="'c' + ${r.id}" placeholder="Comment (optional)" maxlength="500" aria-label="Comment">
+                        <button type="submit" class="btn small approve">Approve</button>
+                        <button type="submit" class="btn small danger" th:formaction="@{/hr/approvals/{id}/reject(id=${r.id})}">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

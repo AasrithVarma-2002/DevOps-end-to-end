@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Departments')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-departments')}"></header>
+<main class="stack">
+    <div class="page-head"><h1>Departments</h1></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Name</th><th>Location</th><th class="num">Active employees</th><th></th></tr></thead>
+            <tbody>
+            <tr th:if="${headcount.isEmpty()}"><td colspan="4" class="empty">No departments yet.</td></tr>
+            <tr th:each="entry : ${headcount}">
+                <td colspan="2">
+                    <form class="decision" method="post" th:action="@{/hr/departments/{id}(id=${entry.key.id})}">
+                        <input name="name" th:value="${entry.key.name}" required aria-label="Name" th:id="'n' + ${entry.key.id}">
+                        <input name="location" th:value="${entry.key.location}" aria-label="Location" th:id="'l' + ${entry.key.id}">
+                        <button type="submit" class="btn small">Save</button>
+                    </form>
+                </td>
+                <td class="num"><a th:href="@{/hr/employees(departmentId=${entry.key.id})}" th:text="${entry.value}"></a></td>
+                <td class="num">
+                    <form method="post" th:action="@{/hr/departments/{id}/delete(id=${entry.key.id})}">
+                        <button type="submit" class="btn small danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <form class="card form" method="post" th:action="@{/hr/departments}">
+        <h2>Add a department</h2>
+        <div class="fields">
+            <label for="name">Name <input id="name" name="name" required maxlength="100"></label>
+            <label for="location">Location <input id="location" name="location" maxlength="100"></label>
+        </div>
+        <div class="actions"><button type="submit" class="btn primary">Add department</button></div>
+    </form>
+</main>
+</body>
+</html>

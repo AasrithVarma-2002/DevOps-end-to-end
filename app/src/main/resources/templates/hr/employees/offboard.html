@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Offboard ' + ${employee.fullName})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-employees')}"></header>
+<main>
+    <div class="page-head"><h1 th:text="'Offboard ' + ${employee.fullName}">Offboard</h1></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="alert warn">
+        This takes effect immediately: their login is disabled, pending leave and any leave after the last working
+        day is cancelled, and requests waiting for them as a manager move to HR. It cannot be undone.
+    </div>
+    <div class="alert info" th:unless="${#lists.isEmpty(reports)}"
+         th:text="${#lists.size(reports)} + ' person(s) report to ' + ${employee.firstName} + '. After offboarding, assign them a new manager.'"></div>
+    <form class="card form" style="max-width:560px" method="post" th:action="@{/hr/employees/{id}/offboard(id=${employee.id})}">
+        <label for="lastWorkingDay">Last working day
+            <input id="lastWorkingDay" type="date" name="lastWorkingDay" th:value="${today}" required></label>
+        <label for="reason">Reason
+            <select id="reason" name="reason" required>
+                <option value="Resignation">Resignation</option>
+                <option value="End of contract">End of contract</option>
+                <option value="Retirement">Retirement</option>
+                <option value="Termination">Termination</option>
+            </select></label>
+        <div class="actions">
+            <button type="submit" class="btn danger solid">Offboard employee</button>
+            <a class="btn" th:href="@{/hr/employees/{id}(id=${employee.id})}">Cancel</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

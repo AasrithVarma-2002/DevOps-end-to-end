@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Complete your profile')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('')}"></header>
+<main>
+    <div class="page-head">
+        <h1 th:text="${employee.profileCompleted} ? 'Edit contact details' : 'Complete your profile'">Profile</h1>
+    </div>
+    <div class="alert info" th:unless="${employee.profileCompleted}">
+        Welcome, <strong th:text="${employee.firstName}">name</strong>! Before you start, add your contact details
+        and an emergency contact. ID document upload will be available here in a later release.</div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <form class="card form" th:action="@{/profile/edit}" method="post">
+        <div class="fields">
+            <label for="phone">Mobile phone
+                <input id="phone" name="phone" th:value="${employee.phone}" required maxlength="20"></label>
+            <label for="emergencyContactName">Emergency contact name
+                <input id="emergencyContactName" name="emergencyContactName" th:value="${employee.emergencyContactName}" required maxlength="100"></label>
+            <label for="emergencyContactPhone">Emergency contact phone
+                <input id="emergencyContactPhone" name="emergencyContactPhone" th:value="${employee.emergencyContactPhone}" required maxlength="20"></label>
+        </div>
+        <label for="address">Home address
+            <textarea id="address" name="address" rows="3" required maxlength="300" th:text="${employee.address}"></textarea></label>
+        <div class="actions">
+            <button type="submit" class="btn primary">Save</button>
+            <a class="btn" th:if="${employee.profileCompleted}" th:href="@{/profile}">Cancel</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

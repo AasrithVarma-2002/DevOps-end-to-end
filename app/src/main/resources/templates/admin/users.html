@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('User accounts')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('admin-users')}"></header>
+<main>
+    <div class="page-head">
+        <div><h1>User accounts</h1>
+            <p class="muted">Roles, locked accounts and password resets. Accounts lock after 5 wrong passwords.</p></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Login</th><th>Name</th><th>Role</th><th>Status</th><th>Last sign-in</th><th>Actions</th></tr></thead>
+            <tbody>
+            <tr th:each="u : ${users}">
+                <td class="small" th:text="${u.username}"></td>
+                <td th:text="${u.displayName}"></td>
+                <td>
+                    <form class="decision" method="post" th:action="@{/admin/users/{id}/role(id=${u.id})}">
+                        <select name="role" th:id="'r' + ${u.id}" aria-label="Role">
+                            <option th:each="r : ${roles}" th:value="${r}" th:text="${r.label}" th:selected="${r == u.role}"></option>
+                        </select>
+                        <button type="submit" class="btn small">Set</button>
+                    </form>
+                </td>
+                <td>
+                    <span th:if="${u.locked}" class="pill st-locked">Locked</span>
+                    <span th:unless="${u.enabled}" class="pill st-disabled">Disabled</span>
+                    <span th:if="${u.enabled and !u.locked}" class="pill st-active">Active</span>
+                    <span th:if="${u.failedAttempts > 0 and !u.locked}" class="small muted" th:text="${u.failedAttempts} + ' failed'"></span>
+                </td>
+                <td class="small num" th:text="${u.lastLoginAt} ? ${#temporals.format(u.lastLoginAt, 'd MMM yyyy HH:mm')} : 'Never'"></td>
+                <td class="actions">
+                    <form th:if="${u.locked}" method="post" th:action="@{/admin/users/{id}/unlock(id=${u.id})}">
+                        <button type="submit" class="btn small">Unlock</button></form>
+                    <form method="post" th:action="@{/admin/users/{id}/enabled(id=${u.id}, enabled=${!u.enabled})}">
+                        <button type="submit" class="btn small" th:text="${u.enabled} ? 'Disable' : 'Enable'">Disable</button></form>
+                    <form method="post" th:action="@{/admin/users/{id}/reset-password(id=${u.id})}">
+                        <button type="submit" class="btn small">Reset password</button></form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Notifications')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('')}"></header>
+<main>
+    <div class="page-head">
+        <h1>Notifications</h1>
+        <form th:action="@{/notifications/read-all}" method="post" th:if="${me.unreadNotifications() > 0}">
+            <button type="submit" class="btn">Mark all as read</button>
+        </form>
+    </div>
+    <div class="table-wrap">
+        <p class="empty" th:if="${#lists.isEmpty(notifications)}">You have no notifications.</p>
+        <ul class="notes" th:unless="${#lists.isEmpty(notifications)}">
+            <li th:each="n : ${notifications}" th:classappend="${!n.read} ? 'unread'">
+                <span>
+                    <a th:if="${n.link}" th:href="@{${n.link}}" th:text="${n.message}"></a>
+                    <span th:unless="${n.link}" th:text="${n.message}"></span>
+                </span>
+                <time th:text="${#temporals.format(n.createdAt, 'd MMM, HH:mm')}"></time>
+            </li>
+        </ul>
+    </div>
+</main>
+</body>
+</html>

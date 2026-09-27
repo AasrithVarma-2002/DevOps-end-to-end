@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My leave')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('leave')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>My leave</h1><p class="muted" th:text="'Balances for ' + ${year}">Balances</p></div>
+        <a class="btn primary" th:href="@{/leave/apply}">Apply for leave</a>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div th:replace="~{fragments/layout :: balances(${balances})}"></div>
+
+    <section>
+        <h2>My requests</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Type</th><th>From</th><th>To</th><th class="num">Days</th><th>Status</th>
+                    <th>Approver notes</th><th></th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(requests)}"><td colspan="7" class="empty">You haven't requested any leave yet.</td></tr>
+                <tr th:each="r : ${requests}">
+                    <td th:text="${r.type.label} + (${r.halfDay} ? ' (half day)' : '')"></td>
+                    <td th:text="${#temporals.format(r.startDate, 'd MMM yyyy')}"></td>
+                    <td th:text="${#temporals.format(r.endDate, 'd MMM yyyy')}"></td>
+                    <td class="num" th:text="${r.days.stripTrailingZeros().toPlainString()}"></td>
+                    <td><span th:replace="~{fragments/layout :: leaveStatus(${r.status})}"></span>
+                        <div class="small muted" th:if="${r.status.name() == 'PENDING_MANAGER'}" th:text="'with ' + ${r.managerName}"></div></td>
+                    <td class="small">
+                        <div th:if="${r.managerComment}" th:text="${r.managerName} + ': ' + ${r.managerComment}"></div>
+                        <div th:if="${r.hrComment}" th:text="'HR: ' + ${r.hrComment}"></div>
+                    </td>
+                    <td>
+                        <form th:if="${r.status.isPending() or (r.status.name() == 'APPROVED' and r.startDate.isAfter(today))}"
+                              th:action="@{/leave/{id}/cancel(id=${r.id})}" method="post">
+                            <button type="submit" class="btn small danger">Cancel</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('No access')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('')}"></header>
+<main>
+    <h1>You don't have access to this page</h1>
+    <p class="muted">Your role does not include this area. Ask HR if you think this is wrong.</p>
+    <a class="btn" th:href="@{/}">Back to dashboard</a>
+</main>
+</body>
+</html>

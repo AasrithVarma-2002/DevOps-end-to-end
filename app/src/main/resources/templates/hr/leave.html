@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('All leave')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-leave')}"></header>
+<main>
+    <div class="page-head"><h1>All leave requests</h1></div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <nav class="tabs" aria-label="Filter by status">
+        <a th:href="@{/hr/leave}" th:classappend="${status == null} ? 'active'">All</a>
+        <a th:each="s : ${statuses}" th:href="@{/hr/leave(status=${s})}" th:text="${s.label}"
+           th:classappend="${status == s} ? 'active'"></a>
+    </nav>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th class="num">Days</th><th>Status</th><th>Decided by</th><th></th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(requests)}"><td colspan="7" class="empty">No leave requests.</td></tr>
+            <tr th:each="r : ${requests}">
+                <td><a th:href="@{/hr/employees/{id}(id=${r.employeeId})}" th:text="${r.employeeName}"></a></td>
+                <td th:text="${r.type.label} + (${r.halfDay} ? ' (half)' : '')"></td>
+                <td th:text="${r.startDate == r.endDate} ? ${r.startDate} : ${r.startDate} + ' → ' + ${r.endDate}"></td>
+                <td class="num" th:text="${r.days.stripTrailingZeros().toPlainString()}"></td>
+                <td><span th:replace="~{fragments/layout :: leaveStatus(${r.status})}"></span></td>
+                <td class="small">
+                    <div th:if="${r.managerDecidedAt}" th:text="${r.managerName}"></div>
+                    <div th:if="${r.hrDecidedBy}" th:text="'HR: ' + ${r.hrDecidedBy}"></div>
+                </td>
+                <td>
+                    <form th:if="${r.status.isPending() or r.status.name() == 'APPROVED'}" method="post"
+                          th:action="@{/hr/leave/{id}/cancel(id=${r.id})}">
+                        <button type="submit" class="btn small danger">Cancel</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

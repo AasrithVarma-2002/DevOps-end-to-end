@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Sign in')}"></head>
+<body>
+<main class="auth">
+    <div class="card">
+        <h1>HR Portal Pro</h1>
+        <p class="muted">Sign in with your work email</p>
+        <div class="alert error" role="alert" th:if="${param.error}">Wrong email or password.</div>
+        <div class="alert error" role="alert" th:if="${param.locked}">
+            Your account is locked after too many failed attempts. Ask an administrator to unlock it.</div>
+        <div class="alert error" role="alert" th:if="${param.disabled}">This account is disabled.</div>
+        <div class="alert success" role="status" th:if="${param.logout}">You have signed out.</div>
+        <form class="form" th:action="@{/login}" method="post">
+            <label for="username">Email
+                <input id="username" type="email" name="username" autocomplete="username" autofocus required></label>
+            <label for="password">Password
+                <input id="password" type="password" name="password" autocomplete="current-password" required></label>
+            <button type="submit" class="btn primary">Sign in</button>
+        </form>
+        <div class="demo">
+            Demo logins (password <code>Password@123</code>):
+            <code>ananya.iyer@hrportal.local</code> (HR),
+            <code>priya.sharma@hrportal.local</code> (Manager),
+            <code>rahul.verma@hrportal.local</code> (Employee).
+            Super Admin: <code>admin@hrportal.local</code>.
+        </div>
+    </div>
+</main>
+</body>
+</html>

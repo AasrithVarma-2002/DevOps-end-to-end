@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Audit log')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-audit')}"></header>
+<main>
+    <div class="page-head">
+        <div><h1>Audit log</h1>
+            <p class="muted">Every important change, with who made it and when. Entries cannot be edited or deleted.</p></div>
+    </div>
+    <form class="filters" method="get" th:action="@{/hr/audit}">
+        <input type="search" name="q" th:value="${q}" placeholder="Search user, action or details" aria-label="Search">
+        <select name="entityType" aria-label="Record type">
+            <option value="">All records</option>
+            <option th:each="t : ${entityTypes}" th:value="${t}" th:text="${t}" th:selected="${t == entityType}"></option>
+        </select>
+        <button type="submit" class="btn">Filter</button>
+    </form>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Record</th><th>Details</th></tr></thead>
+            <tbody>
+            <tr th:if="${entries.isEmpty()}"><td colspan="5" class="empty">No entries.</td></tr>
+            <tr th:each="a : ${entries.content}">
+                <td class="num small" th:text="${#temporals.format(a.occurredAt, 'd MMM yyyy HH:mm:ss')}"></td>
+                <td class="small" th:text="${a.actor}"></td>
+                <td><span class="pill" th:text="${a.action}"></span></td>
+                <td class="small" th:text="${a.entityType} + (${a.entityId} ? ' #' + ${a.entityId} : '')"></td>
+                <td class="small" th:text="${a.details}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="pager" th:if="${entries.totalPages > 1}">
+        <a class="btn small" th:if="${entries.hasPrevious()}" th:href="@{/hr/audit(q=${q}, entityType=${entityType}, page=${entries.number - 1})}">Newer</a>
+        <span class="muted small" th:text="'Page ' + ${entries.number + 1} + ' of ' + ${entries.totalPages}"></span>
+        <a class="btn small" th:if="${entries.hasNext()}" th:href="@{/hr/audit(q=${q}, entityType=${entityType}, page=${entries.number + 1})}">Older</a>
+    </div>
+</main>
+</body>
+</html>

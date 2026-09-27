@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My team')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('team')}"></header>
+<main class="stack">
+    <div class="page-head"><h1>My team</h1>
+        <a class="btn" th:href="@{/team/approvals}">Team approvals</a></div>
+
+    <section class="card">
+        <h2>Out today</h2>
+        <p class="muted" th:if="${#lists.isEmpty(outToday)}">Everyone on your team is in today.</p>
+        <ul th:unless="${#lists.isEmpty(outToday)}">
+            <li th:each="r : ${outToday}"><strong th:text="${r.employeeName}"></strong>
+                <span class="muted" th:text="' · ' + ${r.type.label} + ' until ' + ${r.endDate}"></span></li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Direct reports</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Name</th><th>Title</th><th class="num">Annual left</th><th class="num">Sick left</th><th class="num">Casual left</th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(reports)}"><td colspan="5" class="empty">Nobody reports to you yet.</td></tr>
+                <tr th:each="e : ${reports}">
+                    <td><strong th:text="${e.fullName}"></strong><div class="small muted" th:text="${e.email}"></div></td>
+                    <td th:text="${e.jobTitle}"></td>
+                    <td class="num" th:each="b : ${balances.get(e.id)}" th:if="${b.type().name() == 'ANNUAL' or b.type().name() == 'SICK' or b.type().name() == 'CASUAL'}"
+                        th:text="${b.available().stripTrailingZeros().toPlainString()}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

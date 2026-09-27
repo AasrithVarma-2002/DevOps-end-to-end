@@ -1,0 +1,45 @@
+# Local environment that mirrors AWS: the app container + MySQL 8.4 (same engine as RDS),
+# running with the same "aws" profile the pods use on EKS.
+#
+#   docker compose up --build        ->  http://localhost:8080
+#   docker compose down -v           ->  stop and delete the database
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: hrdb
+      MYSQL_USER: hradmin
+      MYSQL_PASSWORD: hrpassword
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uhradmin", "-phrpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - db-data:/var/lib/mysql
+
+  app:
+    build: ./app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: aws
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: hrdb
+      DB_USERNAME: hradmin
+      DB_PASSWORD: hrpassword
+      # Local MySQL has a self-signed certificate; RDS uses sslMode=REQUIRED (see application.yml)
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/hrdb?sslMode=PREFERRED&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      APP_ADMIN_EMAIL: admin@hrportal.local
+      APP_ADMIN_PASSWORD: Admin@12345
+      APP_DEMO_DATA: "true"
+    ports:
+      - "8080:8080"
+
+volumes:
+  db-data:
