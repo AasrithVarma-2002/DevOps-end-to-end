@@ -109,6 +109,9 @@ resource "aws_instance" "jenkins" {
 
   tags = { Name = "${local.name}-jenkins" }
 
+  # Boot only after routes, NAT and Internet Gateway exist, so the install script has internet
+  depends_on = [module.vpc]
+
   lifecycle {
     ignore_changes = [ami, user_data] # a newer AMI shouldn't recreate Jenkins
   }

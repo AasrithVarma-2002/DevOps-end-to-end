@@ -3,6 +3,15 @@
 set -euxo pipefail
 exec > >(tee -a /var/log/hr-portal-setup.log) 2>&1
 
+# The instance can boot before it has internet access (the Elastic IP / NAT route is attached
+# a moment later by Terraform), so wait for it instead of failing the install.
+for i in $(seq 1 60); do
+  curl -fsS --max-time 5 -o /dev/null https://aws.amazon.com && break
+  echo "Waiting for internet access ($i/60)..."
+  sleep 10
+done
+
+
 dnf -y install mariadb105 jq
 
 KUBECTL_VERSION=$(curl -fsSL "https://dl.k8s.io/release/stable-${kubernetes_version}.txt")

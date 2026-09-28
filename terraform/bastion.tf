@@ -64,6 +64,9 @@ resource "aws_instance" "bastion" {
 
   tags = { Name = "${local.name}-bastion" }
 
+  # Boot only after routes, NAT and Internet Gateway exist, so the install script has internet
+  depends_on = [module.vpc]
+
   lifecycle {
     ignore_changes = [ami]
   }

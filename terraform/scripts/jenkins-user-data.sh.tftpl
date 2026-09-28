@@ -5,6 +5,15 @@ set -euxo pipefail
 exec > >(tee -a /var/log/hr-portal-setup.log) 2>&1
 
 REGION="${region}"
+
+# The instance can boot before it has internet access (the Elastic IP / NAT route is attached
+# a moment later by Terraform), so wait for it instead of failing the install.
+for i in $(seq 1 60); do
+  curl -fsS --max-time 5 -o /dev/null https://aws.amazon.com && break
+  echo "Waiting for internet access ($i/60)..."
+  sleep 10
+done
+
 K8S_MINOR="${kubernetes_version}"
 
 # 2 GB swap: Maven + Docker builds can briefly exceed 4 GB of RAM
