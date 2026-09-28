@@ -1,0 +1,83 @@
+#!/bin/bash
+# First-boot setup for the Jenkins server (Amazon Linux 2023).
+# Progress: sudo tail -f /var/log/hr-portal-setup.log   Done when /var/lib/hr-portal-setup.done exists.
+set -euxo pipefail
+exec > >(tee -a /var/log/hr-portal-setup.log) 2>&1
+
+REGION="${region}"
+K8S_MINOR="${kubernetes_version}"
+
+# 2 GB swap: Maven + Docker builds can briefly exceed 4 GB of RAM
+if [ ! -f /swapfile ]; then
+  dd if=/dev/zero of=/swapfile bs=1M count=2048
+  chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
+dnf -y update
+dnf -y install git docker fontconfig java-21-amazon-corretto-devel tar gzip unzip jq
+
+# ---- Jenkins (LTS). The package repo is tried first; the official WAR is the fallback.
+if curl -fsSL -o /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo; then
+  for key in jenkins.io-2026.key jenkins.io-2023.key; do
+    rpm --import "https://pkg.jenkins.io/redhat-stable/$key" || true
+  done
+fi
+if ! dnf -y install jenkins; then
+  echo "Jenkins package install failed, using the WAR file instead"
+  rm -f /etc/yum.repos.d/jenkins.repo
+  useradd --system --home-dir /var/lib/jenkins --create-home --shell /bin/bash jenkins || true
+  mkdir -p /usr/share/java
+  curl -fsSL -o /usr/share/java/jenkins.war https://get.jenkins.io/war-stable/latest/jenkins.war
+  cat > /etc/systemd/system/jenkins.service <<'UNIT'
+[Unit]
+Description=Jenkins
+After=network-online.target docker.service
+[Service]
+User=jenkins
+Environment=JENKINS_HOME=/var/lib/jenkins
+ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /usr/share/java/jenkins.war --httpPort=8080
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+UNIT
+fi
+
+# Settings the pipeline reads (no aws configure needed: credentials come from the instance role)
+mkdir -p /etc/systemd/system/jenkins.service.d
+cat > /etc/systemd/system/jenkins.service.d/hr-portal.conf <<UNIT
+[Service]
+Environment=AWS_DEFAULT_REGION=$REGION
+Environment=AWS_REGION=$REGION
+Environment=EKS_CLUSTER_NAME=${cluster_name}
+Environment=ECR_REGISTRY=${ecr_registry}
+Environment=ECR_REPOSITORY=${ecr_repository}
+UNIT
+
+# ---- Docker: the jenkins user runs docker build/push
+systemctl enable --now docker
+usermod -aG docker jenkins
+
+# ---- kubectl matching the cluster version
+KUBECTL_VERSION=$(curl -fsSL "https://dl.k8s.io/release/stable-$K8S_MINOR.txt")
+curl -fsSL -o /usr/local/bin/kubectl "https://dl.k8s.io/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl"
+chmod +x /usr/local/bin/kubectl
+
+# ---- Helm 3
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | HELM_INSTALL_DIR=/usr/local/bin bash
+
+# ---- Trivy (image vulnerability scanner)
+curl -fsSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+systemctl daemon-reload
+systemctl enable --now jenkins
+
+# Wait for Jenkins to write its first-login password
+for i in $(seq 1 60); do
+  [ -f /var/lib/jenkins/secrets/initialAdminPassword ] && break
+  sleep 5
+done
+
+java -version; docker --version; kubectl version --client; helm version; trivy --version; aws --version
+touch /var/lib/hr-portal-setup.done
+echo "Jenkins setup complete"

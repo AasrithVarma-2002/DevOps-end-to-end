@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is git-ignored.
+#   cp terraform.tfvars.example terraform.tfvars
+
+# Your public IP: curl -s https://checkip.amazonaws.com
+my_ip = "49.37.10.20"
+
+region = "ap-south-1"
+
+# Created with: ssh-keygen -t ed25519 -f ~/.ssh/hr-portal-jenkins
+jenkins_ssh_public_key_path = "~/.ssh/hr-portal-jenkins.pub"
+
+# Login for the first Super Admin of the HR Portal (password is generated into Secrets Manager)
+app_admin_email = "admin@hrportal.local"
+
+# Uncomment if your AWS account is on the free plan and RDS rejects 7 days
+# db_backup_retention_days = 1

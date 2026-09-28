@@ -1,0 +1,18 @@
+#!/bin/bash
+# First-boot setup for the bastion (Amazon Linux 2023): MySQL client + kubectl.
+set -euxo pipefail
+exec > >(tee -a /var/log/hr-portal-setup.log) 2>&1
+
+dnf -y install mariadb105 jq
+
+KUBECTL_VERSION=$(curl -fsSL "https://dl.k8s.io/release/stable-${kubernetes_version}.txt")
+curl -fsSL -o /usr/local/bin/kubectl "https://dl.k8s.io/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl"
+chmod +x /usr/local/bin/kubectl
+
+# Every session (including ssm-user) gets the region and cluster name
+cat > /etc/profile.d/hr-portal.sh <<ENV
+export AWS_DEFAULT_REGION=${region}
+export EKS_CLUSTER_NAME=${cluster_name}
+ENV
+
+touch /var/lib/hr-portal-setup.done
