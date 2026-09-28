@@ -18,8 +18,11 @@ module "vpc" {
   enable_nat_gateway = true
   single_nat_gateway = true
 
-  # RDS needs a subnet group; database subnets get no internet route at all
+  # RDS needs a subnet group. The database subnets get their OWN route table with only the
+  # local VPC route (no NAT, no Internet Gateway). Without create_database_subnet_route_table
+  # the module would attach them to the private route table, which routes 0.0.0.0/0 to the NAT.
   create_database_subnet_group           = true
+  create_database_subnet_route_table     = true
   create_database_nat_gateway_route      = false
   create_database_internet_gateway_route = false
 

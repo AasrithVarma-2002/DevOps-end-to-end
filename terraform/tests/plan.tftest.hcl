@@ -80,6 +80,10 @@ run "apply_as_iam_user" {
     error_message = "unexpected public subnets"
   }
   assert {
+    condition     = length(module.vpc.database_route_table_ids) == 1 && length(module.vpc.database_nat_gateway_route_ids) == 0 && module.vpc.database_internet_gateway_route_id == null
+    error_message = "database subnets must have their own route table with no NAT or internet route"
+  }
+  assert {
     condition     = aws_vpc_security_group_ingress_rule.jenkins_ui.cidr_ipv4 == "49.37.10.20/32"
     error_message = "Jenkins UI must only be open to my_ip"
   }
