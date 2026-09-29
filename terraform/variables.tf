@@ -28,6 +28,12 @@ variable "my_ip" {
   }
 }
 
+variable "allow_root_credentials" {
+  description = "Allow running Terraform with the AWS root user's access keys (not recommended; an IAM user is safer)"
+  type        = bool
+  default     = false
+}
+
 # ---------------------------------------------------------------- network
 
 variable "vpc_cidr" {

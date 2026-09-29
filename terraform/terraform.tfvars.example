@@ -12,5 +12,8 @@ jenkins_ssh_public_key_path = "~/.ssh/hr-portal-jenkins.pub"
 # Login for the first Super Admin of the HR Portal (password is generated into Secrets Manager)
 app_admin_email = "admin@hrportal.local"
 
+# Set to true only if you run Terraform with root access keys (an IAM user is recommended)
+# allow_root_credentials = true
+
 # Uncomment if your AWS account is on the free plan and RDS rejects 7 days
 # db_backup_retention_days = 1

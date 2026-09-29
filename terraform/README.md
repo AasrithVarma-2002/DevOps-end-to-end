@@ -39,10 +39,13 @@ Run `terraform destroy` when you're finished (see the end of this guide).
 
 ---
 
-## 2.0 Use an IAM user, not root (required)
+## 2.0 Use an IAM user, not root (recommended)
 
-Terraform refuses to run with root credentials. EKS can't give cluster access to the root user,
-and root can't assume IAM roles, so the cluster would be created but you couldn't use `kubectl`.
+By default Terraform refuses to run with root access keys: root can do anything in the account,
+its keys can't be limited, and root can't assume IAM roles. An IAM user avoids all of that.
+If you still want to use root, add `allow_root_credentials = true` to `terraform.tfvars`. If EKS
+then rejects the cluster-admin access entry for root, the apply stops at that step; switch to an
+IAM user and run `terraform apply` again.
 
 1. AWS Console (as root) → **IAM → Users → Create user**, name `devops-admin`
 2. **Attach policies directly** → tick **AdministratorAccess** → **Create user**
@@ -157,7 +160,8 @@ aws ecr describe-repositories --region ap-south-1 --repository-names hr-portal
 
 | Error | Fix |
 |---|---|
-| `Terraform is running with the AWS root user` | Do step 2.0 |
+| `Terraform is running with the AWS root user` | Do step 2.0, or set `allow_root_credentials = true` |
+| Error creating the EKS access entry for `...:root` | EKS won't map root: create the IAM user (2.0), `aws configure` with its keys, `terraform apply` again |
 | `my_ip must be a plain IPv4 address` | Use `49.37.10.20`, not `49.37.10.20/32` |
 | `no file exists at ~/.ssh/hr-portal-jenkins.pub` | Run the `ssh-keygen` command in 2.1 |
 | `unsupported Kubernetes version` | Set `kubernetes_version` to a version from the `describe-cluster-versions` command |

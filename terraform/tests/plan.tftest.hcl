@@ -118,6 +118,15 @@ run "root_user_is_rejected" {
   expect_failures = [terraform_data.require_iam_identity]
 }
 
+run "root_user_allowed_when_opted_in" {
+  command = plan
+  variables { allow_root_credentials = true }
+  override_data {
+    target = data.aws_caller_identity.current
+    values = { account_id = "123456789012", arn = "arn:aws:iam::123456789012:root" }
+  }
+}
+
 run "bad_ip_is_rejected" {
   command = plan
   variables { my_ip = "49.37.10.20/32" }
