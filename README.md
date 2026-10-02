@@ -116,6 +116,13 @@ app/
   src/main/resources/
     db/migration/ Flyway SQL (MySQL 8.4 / H2 compatible)
     templates/    Thymeleaf pages
-  Dockerfile      multi-stage build, non-root runtime
+  Dockerfile      multi-stage build, non-root runtime (UID 10001)
+terraform/        AWS infrastructure: VPC, EKS, RDS, ECR, Secrets Manager, Jenkins, bastion (step 2)
+k8s/              cluster add-ons and secret wiring, applied once by the admin (step 3)
+helm/hr-portal/   the app's Kubernetes chart: Deployment, Service, ALB Ingress (step 3, Jenkins in step 4)
 docker-compose.yml  app + MySQL 8.4 for local runs
 ```
+
+## Deploying to AWS
+1. `terraform/README.md`: build the infrastructure
+2. `k8s/README.md`: install the cluster add-ons and deploy the app

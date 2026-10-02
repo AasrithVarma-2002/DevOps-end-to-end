@@ -1,0 +1,15 @@
+# Stable in-cluster address for the pods. The ALB targets the pod IPs behind it directly (target-type ip).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "hr-portal.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "hr-portal.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

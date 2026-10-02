@@ -1,0 +1,6 @@
+HR Portal {{ .Values.image.tag }} is deploying to namespace {{ .Release.Namespace }}.
+
+  kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ .Release.Name }}
+  kubectl -n {{ .Release.Namespace }} get ingress {{ .Release.Name }}   # ADDRESS = the ALB's DNS name (takes 2-3 minutes)
+
+Open http://<ADDRESS> and sign in with the email and password from the hr-portal/app-admin secret.

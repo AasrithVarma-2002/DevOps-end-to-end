@@ -1,0 +1,8 @@
+# The app's namespace. Jenkins can deploy only here (EKS access entry in terraform/eks.tf),
+# but it cannot create namespaces, so the cluster admin creates it once.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hr-portal
+  labels:
+    app.kubernetes.io/part-of: hr-portal

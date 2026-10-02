@@ -1,0 +1,7 @@
+apiVersion: v2
+name: hr-portal
+description: HR Portal Pro (Spring Boot) on Amazon EKS behind an Application Load Balancer
+type: application
+version: 0.1.0
+# The image tag is set per deploy (git commit SHA); appVersion is only informational
+appVersion: "stage-1"

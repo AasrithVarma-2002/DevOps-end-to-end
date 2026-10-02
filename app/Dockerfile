@@ -9,10 +9,11 @@ RUN mvn -B -q package -DskipTests
 
 # ---- runtime stage: small JRE image, non-root user ----
 FROM eclipse-temurin:21-jre-alpine
-RUN addgroup -S app && adduser -S app -G app && apk add --no-cache wget
+# Fixed numeric UID/GID so Kubernetes can verify runAsNonRoot (the Helm chart runs as 10001)
+RUN addgroup -S -g 10001 app && adduser -S -u 10001 -G app app && apk add --no-cache wget
 WORKDIR /app
 COPY --from=build /src/target/hr-portal.jar app.jar
-USER app
+USER 10001:10001
 EXPOSE 8080
 # respect the container memory limit; restart cleanly instead of limping on OOM
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"

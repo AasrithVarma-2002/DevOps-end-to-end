@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "hr-portal.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0 # never drop below the desired count during a deploy
+      maxSurge: 1
+  selector:
+    matchLabels:
+      {{- include "hr-portal.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "hr-portal.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      # Spread the replicas across the two AZs (and therefore the two nodes)
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "hr-portal.selectorLabels" . | nindent 14 }}
+      containers:
+        - name: app
+          image: "{{ required "image.repository is required" .Values.image.repository }}:{{ required "image.tag is required" .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: aws
+            - name: JAVA_OPTS
+              value: {{ .Values.app.javaOpts | quote }}
+            - name: APP_TIME_ZONE
+              value: {{ .Values.app.timeZone | quote }}
+            - name: APP_DEMO_DATA
+              value: {{ .Values.app.demoData | quote }}
+          # DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD, APP_ADMIN_EMAIL, APP_ADMIN_PASSWORD
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secretName }}
+          # Start-up (Flyway migrations, Spring context) can take a minute on a small node
+          startupProbe:
+            httpGet: { path: /actuator/health/liveness, port: http }
+            periodSeconds: 5
+            failureThreshold: 36 # up to 3 minutes
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: http }
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: http }
+            periodSeconds: 5
+            failureThreshold: 3
+          lifecycle:
+            # Give the ALB time to stop sending new requests before Spring starts its graceful shutdown
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 10"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp # Tomcat needs a writable temp directory
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

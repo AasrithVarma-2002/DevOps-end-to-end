@@ -1,0 +1,44 @@
+# Default settings for the HR Portal chart.
+# Jenkins overrides image.repository and image.tag on every deploy:
+#   helm upgrade --install hr-portal helm/hr-portal -n hr-portal \
+#     --set image.repository=$ECR_REGISTRY/$ECR_REPOSITORY --set image.tag=$GIT_SHA
+
+replicaCount: 2
+
+image:
+  repository: "" # <account>.dkr.ecr.ap-south-1.amazonaws.com/hr-portal (required)
+  tag: ""        # git commit SHA (required; ECR tags are immutable)
+  pullPolicy: IfNotPresent
+
+# Kubernetes Secret created by External Secrets (k8s/platform/external-secret.yaml).
+# Every key (DB_HOST, DB_PASSWORD, APP_ADMIN_EMAIL, ...) becomes an environment variable.
+secretName: hr-portal-secrets
+
+app:
+  timeZone: Asia/Kolkata
+  # true = load sample departments, employees and holidays on an empty database (demo logins use Password@123)
+  demoData: false
+  # Heap = 65% of the memory limit; the rest is left for metaspace, threads and buffers
+  javaOpts: "-XX:MaxRAMPercentage=65 -XX:+ExitOnOutOfMemoryError"
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 768Mi
+  limits:
+    memory: 1Gi # no CPU limit: avoids throttling during JVM start-up; requests still reserve capacity
+
+serviceAccount:
+  name: hr-portal
+  # Stage 3 (S3 payslips) will add: eks.amazonaws.com/role-arn: <hr-portal-app role ARN>
+  annotations: {}
+
+ingress:
+  enabled: true
+  loadBalancerName: hr-portal-alb
+  # Who may reach the ALB. Use ["<your-ip>/32"] to keep the demo private.
+  inboundCidrs:
+    - 0.0.0.0/0
+
+podDisruptionBudget:
+  minAvailable: 1
