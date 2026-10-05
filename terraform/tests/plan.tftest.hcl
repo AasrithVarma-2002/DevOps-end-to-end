@@ -132,3 +132,20 @@ run "bad_ip_is_rejected" {
   variables { my_ip = "49.37.10.20/32" }
   expect_failures = [var.my_ip]
 }
+
+run "eks_api_defaults_to_my_ip" {
+  command = plan
+  assert {
+    condition     = tolist(output.eks_public_access_cidrs) == tolist(["49.37.10.20/32"])
+    error_message = "EKS public endpoint must default to my_ip only"
+  }
+}
+
+run "eks_api_can_be_opened" {
+  command = plan
+  variables { eks_public_access_cidrs = ["0.0.0.0/0"] }
+  assert {
+    condition     = tolist(output.eks_public_access_cidrs) == tolist(["0.0.0.0/0"]) && aws_vpc_security_group_ingress_rule.jenkins_ssh.cidr_ipv4 == "49.37.10.20/32"
+    error_message = "eks_public_access_cidrs must open only the EKS API, not Jenkins"
+  }
+}

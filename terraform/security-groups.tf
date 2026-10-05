@@ -86,7 +86,7 @@ resource "aws_vpc_security_group_ingress_rule" "rds_from_bastion" {
 
 # ---------------------------------------------------------------- EKS API (private endpoint)
 # Jenkins and the bastion are inside the VPC, so they reach the Kubernetes API through its
-# private endpoint. Your laptop uses the public endpoint (limited to my_ip in eks.tf).
+# private endpoint. Your laptop uses the public endpoint (my_ip, or eks_public_access_cidrs, in eks.tf).
 
 resource "aws_vpc_security_group_ingress_rule" "eks_api_from_jenkins" {
   security_group_id            = module.eks.cluster_security_group_id

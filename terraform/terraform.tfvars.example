@@ -4,6 +4,10 @@
 # Your public IP: curl -s https://checkip.amazonaws.com
 my_ip = "49.37.10.20"
 
+# Optional: open the EKS API to more than my_ip (it still needs IAM + an access entry).
+# Jenkins UI/SSH stay limited to my_ip.
+# eks_public_access_cidrs = ["0.0.0.0/0"]
+
 region = "ap-south-1"
 
 # Created with: ssh-keygen -t ed25519 -f ~/.ssh/hr-portal-jenkins

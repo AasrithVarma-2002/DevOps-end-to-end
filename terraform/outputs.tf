@@ -17,6 +17,11 @@ output "kubeconfig_command" {
   value       = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
 }
 
+output "eks_public_access_cidrs" {
+  description = "IPs allowed to reach the EKS API from the internet"
+  value       = local.eks_public_access_cidrs
+}
+
 output "app_namespace" {
   value = local.app_namespace
 }

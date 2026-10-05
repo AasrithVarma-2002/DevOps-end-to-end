@@ -28,6 +28,17 @@ variable "my_ip" {
   }
 }
 
+variable "eks_public_access_cidrs" {
+  description = "Who can reach the EKS API from the internet. Empty = only my_ip. [\"0.0.0.0/0\"] = anywhere (still needs IAM + an access entry); handy while your home IP keeps changing."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for c in var.eks_public_access_cidrs : can(cidrhost(c, 0))])
+    error_message = "eks_public_access_cidrs must be CIDRs like 49.37.10.0/24 or 0.0.0.0/0."
+  }
+}
+
 variable "allow_root_credentials" {
   description = "Allow running Terraform with the AWS root user's access keys (not recommended; an IAM user is safer)"
   type        = bool
