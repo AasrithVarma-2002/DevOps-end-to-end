@@ -6,7 +6,7 @@
 #   bastion role                              read-only view of the cluster (troubleshooting)
 
 locals {
-  eks_public_access_cidrs = length(var.eks_public_access_cidrs) > 0 ? var.eks_public_access_cidrs : ["${var.my_ip}/32"]
+  eks_public_access_cidrs = length(var.eks_public_access_cidrs) > 0 ? var.eks_public_access_cidrs : [local.admin_cidr]
 }
 
 module "eks" {

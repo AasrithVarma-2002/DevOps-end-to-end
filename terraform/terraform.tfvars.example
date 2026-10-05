@@ -2,6 +2,7 @@
 #   cp terraform.tfvars.example terraform.tfvars
 
 # Your public IP: curl -s https://checkip.amazonaws.com
+# (or "0.0.0.0/0" if your IP keeps changing: Jenkins and the EKS API are then reachable from anywhere)
 my_ip = "49.37.10.20"
 
 # Optional: open the EKS API to more than my_ip (it still needs IAM + an access entry).

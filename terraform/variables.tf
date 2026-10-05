@@ -19,12 +19,12 @@ variable "environment" {
 }
 
 variable "my_ip" {
-  description = "Your public IP (curl -s https://checkip.amazonaws.com). Only this IP can reach Jenkins (8080, 22) and the EKS API."
+  description = "Your public IP (curl -s https://checkip.amazonaws.com), or a CIDR. Only this can reach Jenkins (8080, 22) and the EKS API. \"0.0.0.0/0\" = anywhere (Jenkins login and SSH key still required)."
   type        = string
 
   validation {
-    condition     = can(regex("^\\d{1,3}(\\.\\d{1,3}){3}$", var.my_ip))
-    error_message = "my_ip must be a plain IPv4 address like 49.37.10.20 (no /32)."
+    condition     = can(regex("^\\d{1,3}(\\.\\d{1,3}){3}$", var.my_ip)) || can(cidrhost(var.my_ip, 0))
+    error_message = "my_ip must be an IPv4 address like 49.37.10.20, or a CIDR like 49.37.10.0/24 or 0.0.0.0/0."
   }
 }
 

@@ -19,7 +19,7 @@ resource "aws_security_group" "jenkins" {
 resource "aws_vpc_security_group_ingress_rule" "jenkins_ui" {
   security_group_id = aws_security_group.jenkins.id
   description       = "Jenkins UI from my IP"
-  cidr_ipv4         = "${var.my_ip}/32"
+  cidr_ipv4         = local.admin_cidr
   ip_protocol       = "tcp"
   from_port         = 8080
   to_port           = 8080
@@ -28,7 +28,7 @@ resource "aws_vpc_security_group_ingress_rule" "jenkins_ui" {
 resource "aws_vpc_security_group_ingress_rule" "jenkins_ssh" {
   security_group_id = aws_security_group.jenkins.id
   description       = "SSH from my IP"
-  cidr_ipv4         = "${var.my_ip}/32"
+  cidr_ipv4         = local.admin_cidr
   ip_protocol       = "tcp"
   from_port         = 22
   to_port           = 22

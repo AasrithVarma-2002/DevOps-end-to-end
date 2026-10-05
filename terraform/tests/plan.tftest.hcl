@@ -129,8 +129,17 @@ run "root_user_allowed_when_opted_in" {
 
 run "bad_ip_is_rejected" {
   command = plan
-  variables { my_ip = "49.37.10.20/32" }
+  variables { my_ip = "my-laptop" }
   expect_failures = [var.my_ip]
+}
+
+run "my_ip_can_be_anywhere" {
+  command = plan
+  variables { my_ip = "0.0.0.0/0" }
+  assert {
+    condition     = aws_vpc_security_group_ingress_rule.jenkins_ssh.cidr_ipv4 == "0.0.0.0/0" && tolist(output.eks_public_access_cidrs) == tolist(["0.0.0.0/0"])
+    error_message = "my_ip = 0.0.0.0/0 must open Jenkins and the EKS API"
+  }
 }
 
 run "eks_api_defaults_to_my_ip" {

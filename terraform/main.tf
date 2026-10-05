@@ -16,6 +16,9 @@ locals {
 
   # Kubernetes namespace the app is deployed into (Jenkins may only deploy here)
   app_namespace = "hr-portal"
+
+  # my_ip as a CIDR: a plain IP becomes x.x.x.x/32, a CIDR (e.g. 0.0.0.0/0) is used as it is
+  admin_cidr = strcontains(var.my_ip, "/") ? var.my_ip : "${var.my_ip}/32"
 }
 
 # Running with root access keys is discouraged: the root user can do anything and can't assume
