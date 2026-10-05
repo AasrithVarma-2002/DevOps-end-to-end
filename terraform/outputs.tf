@@ -17,9 +17,9 @@ output "kubeconfig_command" {
   value       = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
 }
 
-output "eks_public_access_cidrs" {
-  description = "IPs allowed to reach the EKS API from the internet"
-  value       = local.eks_public_access_cidrs
+output "admin_cidr" {
+  description = "Who can reach Jenkins and the EKS API from the internet (local.admin_cidr in main.tf)"
+  value       = local.admin_cidr
 }
 
 output "app_namespace" {

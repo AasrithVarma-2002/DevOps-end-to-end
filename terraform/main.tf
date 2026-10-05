@@ -17,8 +17,10 @@ locals {
   # Kubernetes namespace the app is deployed into (Jenkins may only deploy here)
   app_namespace = "hr-portal"
 
-  # my_ip as a CIDR: a plain IP becomes x.x.x.x/32, a CIDR (e.g. 0.0.0.0/0) is used as it is
-  admin_cidr = strcontains(var.my_ip, "/") ? var.my_ip : "${var.my_ip}/32"
+  # Who may reach Jenkins (8080, 22) and the EKS API from the internet. Open to anywhere because
+  # the admin's home IP keeps changing; Jenkins login, the SSH key and IAM still protect them.
+  # To lock down again, put your IP here, e.g. "49.37.10.20/32".
+  admin_cidr = "0.0.0.0/0"
 }
 
 # Running with root access keys is discouraged: the root user can do anything and can't assume

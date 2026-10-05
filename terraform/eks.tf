@@ -5,10 +5,6 @@
 #   Jenkins role                              admin in the "hr-portal" namespace only (deploys the app)
 #   bastion role                              read-only view of the cluster (troubleshooting)
 
-locals {
-  eks_public_access_cidrs = length(var.eks_public_access_cidrs) > 0 ? var.eks_public_access_cidrs : [local.admin_cidr]
-}
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.26"
@@ -20,10 +16,10 @@ module "eks" {
   subnet_ids = module.vpc.private_subnets
 
   # API endpoint: private for Jenkins/bastion inside the VPC, public for kubectl from your laptop
-  # (only your IP unless eks_public_access_cidrs says otherwise)
+  # (local.admin_cidr in main.tf)
   endpoint_private_access      = true
   endpoint_public_access       = true
-  endpoint_public_access_cidrs = local.eks_public_access_cidrs
+  endpoint_public_access_cidrs = [local.admin_cidr]
 
   # IAM OIDC provider, needed for IRSA (IAM roles for Kubernetes service accounts)
   enable_irsa = true

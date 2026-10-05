@@ -6,11 +6,11 @@ This folder creates everything the HR Portal needs on AWS. The app itself is dep
                                Internet
                                   │
             ┌─────────────────────┼──────────────────────────┐
-            │ Users               │ You (my_ip only)         │ GitHub (Jenkins polls it)
+            │ Users               │ You (admin_cidr)         │ GitHub (Jenkins polls it)
             ▼                     ▼                          ▲
 ┌──────────────────────── VPC 10.0.0.0/16 (2 AZs) ─────────────────────────────┐
 │ PUBLIC   10.0.0.0/24 · 10.0.1.0/24          route: 0.0.0.0/0 → Internet GW   │
-│   ALB (created in step 3)   NAT Gateway     Jenkins EC2 (:8080, :22 my_ip)   │
+│   ALB (created in step 3)   NAT Gateway     Jenkins EC2 (:8080, :22 admin)   │
 │ PRIVATE  10.0.10.0/24 · 10.0.11.0/24        route: 0.0.0.0/0 → NAT Gateway   │
 │   EKS worker nodes (2 × t3.medium) → app pods        Bastion (SSM only)      │
 │ DATABASE 10.0.20.0/24 · 10.0.21.0/24        no internet route                │
@@ -23,7 +23,7 @@ This folder creates everything the HR Portal needs on AWS. The app itself is dep
 |---|---|
 | `bootstrap/` | S3 bucket for Terraform state (versioned, encrypted, locked). Run once. |
 | `vpc.tf` | VPC, 6 subnets in 2 AZs, Internet Gateway, NAT Gateway, route tables, subnet tags for load balancers |
-| `security-groups.tf` | Firewall rules: Jenkins ← my_ip; RDS ← EKS nodes + bastion; EKS API ← Jenkins + bastion |
+| `security-groups.tf` | Firewall rules: Jenkins ← admin_cidr (main.tf); RDS ← EKS nodes + bastion; EKS API ← Jenkins + bastion |
 | `rds.tf` | RDS MySQL 8.4, TLS required, encrypted, backups |
 | `secrets.tf` | Random DB password and admin password in Secrets Manager |
 | `ecr.tf` | Image registry `hr-portal` (immutable tags, scan on push, keeps 20 images) |
@@ -77,9 +77,8 @@ reopen Git Bash, then check with `session-manager-plugin --version`.
 ```bash
 cd ~/projects/DevOps-end-to-end/terraform
 cp terraform.tfvars.example terraform.tfvars
-curl -s https://checkip.amazonaws.com      # your public IP
 ```
-Edit `terraform.tfvars` and set `my_ip` to that IP (no `/32`). `terraform.tfvars` is git-ignored.
+Who can reach Jenkins and the EKS API is `local.admin_cidr` in `main.tf` (`0.0.0.0/0`, because a home IP keeps changing; put `<your-ip>/32` there to lock it down). `terraform.tfvars` is git-ignored.
 
 Check the EKS version is offered in your region (the default is `1.35`):
 ```bash
@@ -162,13 +161,12 @@ aws ecr describe-repositories --region ap-south-1 --repository-names hr-portal
 |---|---|
 | `Terraform is running with the AWS root user` | Do step 2.0, or set `allow_root_credentials = true` |
 | Error creating the EKS access entry for `...:root` | EKS won't map root: create the IAM user (2.0), `aws configure` with its keys, `terraform apply` again |
-| `my_ip must be a plain IPv4 address` | Use `49.37.10.20`, not `49.37.10.20/32` |
 | `no file exists at ~/.ssh/hr-portal-jenkins.pub` | Run the `ssh-keygen` command in 2.1 |
 | `unsupported Kubernetes version` | Set `kubernetes_version` to a version from the `describe-cluster-versions` command |
 | RDS: `FreeTierRestrictionError ... backup retention` | Add `db_backup_retention_days = 1` to `terraform.tfvars` |
 | `kubectl`: `the server has asked for the client to provide credentials` | You ran Terraform as one identity and kubectl as another. Use the same IAM user. |
-| `kubectl` times out | Your public IP changed. Update `my_ip`, run `terraform apply`. |
-| Jenkins page doesn't open | Wait 5 minutes for the install; check `my_ip`; see `/var/log/hr-portal-setup.log` |
+| `kubectl` times out | If `admin_cidr` in `main.tf` is your IP, your IP changed: update it, run `terraform apply`. |
+| Jenkins page doesn't open | Wait 5 minutes for the install; check `admin_cidr` in `main.tf`; see `/var/log/hr-portal-setup.log` |
 | `SessionManagerPlugin is not found` | Install the Session Manager plugin (2.1) and reopen Git Bash |
 | `Error acquiring the state lock` | Another apply is running. If not, `terraform force-unlock <ID>` |
 

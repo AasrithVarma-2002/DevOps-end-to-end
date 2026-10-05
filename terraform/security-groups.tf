@@ -18,7 +18,7 @@ resource "aws_security_group" "jenkins" {
 
 resource "aws_vpc_security_group_ingress_rule" "jenkins_ui" {
   security_group_id = aws_security_group.jenkins.id
-  description       = "Jenkins UI from my IP"
+  description       = "Jenkins UI from admin_cidr"
   cidr_ipv4         = local.admin_cidr
   ip_protocol       = "tcp"
   from_port         = 8080
@@ -27,7 +27,7 @@ resource "aws_vpc_security_group_ingress_rule" "jenkins_ui" {
 
 resource "aws_vpc_security_group_ingress_rule" "jenkins_ssh" {
   security_group_id = aws_security_group.jenkins.id
-  description       = "SSH from my IP"
+  description       = "SSH from admin_cidr"
   cidr_ipv4         = local.admin_cidr
   ip_protocol       = "tcp"
   from_port         = 22
@@ -86,7 +86,7 @@ resource "aws_vpc_security_group_ingress_rule" "rds_from_bastion" {
 
 # ---------------------------------------------------------------- EKS API (private endpoint)
 # Jenkins and the bastion are inside the VPC, so they reach the Kubernetes API through its
-# private endpoint. Your laptop uses the public endpoint (my_ip, or eks_public_access_cidrs, in eks.tf).
+# private endpoint. Your laptop uses the public endpoint (local.admin_cidr in main.tf).
 
 resource "aws_vpc_security_group_ingress_rule" "eks_api_from_jenkins" {
   security_group_id            = module.eks.cluster_security_group_id

@@ -68,7 +68,6 @@ mock_provider "null" {}
 mock_provider "cloudinit" {}
 
 variables {
-  my_ip                       = "49.37.10.20"
   jenkins_ssh_public_key_path = "tests/fixtures/test_key.pub"
 }
 
@@ -84,8 +83,8 @@ run "apply_as_iam_user" {
     error_message = "database subnets must have their own route table with no NAT or internet route"
   }
   assert {
-    condition     = aws_vpc_security_group_ingress_rule.jenkins_ui.cidr_ipv4 == "49.37.10.20/32"
-    error_message = "Jenkins UI must only be open to my_ip"
+    condition     = aws_vpc_security_group_ingress_rule.jenkins_ui.cidr_ipv4 == "0.0.0.0/0" && output.admin_cidr == "0.0.0.0/0"
+    error_message = "Jenkins UI must use admin_cidr"
   }
   assert {
     condition     = strcontains(aws_instance.jenkins.user_data, "EKS_CLUSTER_NAME=hr-portal-eks")
@@ -127,34 +126,3 @@ run "root_user_allowed_when_opted_in" {
   }
 }
 
-run "bad_ip_is_rejected" {
-  command = plan
-  variables { my_ip = "my-laptop" }
-  expect_failures = [var.my_ip]
-}
-
-run "my_ip_can_be_anywhere" {
-  command = plan
-  variables { my_ip = "0.0.0.0/0" }
-  assert {
-    condition     = aws_vpc_security_group_ingress_rule.jenkins_ssh.cidr_ipv4 == "0.0.0.0/0" && tolist(output.eks_public_access_cidrs) == tolist(["0.0.0.0/0"])
-    error_message = "my_ip = 0.0.0.0/0 must open Jenkins and the EKS API"
-  }
-}
-
-run "eks_api_defaults_to_my_ip" {
-  command = plan
-  assert {
-    condition     = tolist(output.eks_public_access_cidrs) == tolist(["49.37.10.20/32"])
-    error_message = "EKS public endpoint must default to my_ip only"
-  }
-}
-
-run "eks_api_can_be_opened" {
-  command = plan
-  variables { eks_public_access_cidrs = ["0.0.0.0/0"] }
-  assert {
-    condition     = tolist(output.eks_public_access_cidrs) == tolist(["0.0.0.0/0"]) && aws_vpc_security_group_ingress_rule.jenkins_ssh.cidr_ipv4 == "49.37.10.20/32"
-    error_message = "eks_public_access_cidrs must open only the EKS API, not Jenkins"
-  }
-}

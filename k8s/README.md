@@ -244,7 +244,7 @@ controller allowed the ALB on the node security group) → Spring Boot → RDS o
 | Pod `ImagePullBackOff` | `kubectl -n hr-portal describe pod <pod>` | Wrong tag, or the image wasn't pushed |
 | Pod restarts / `CrashLoopBackOff` | `kubectl -n hr-portal logs <pod> --previous` | `Communications link failure`: RDS security group. `Access denied for user`: secret values |
 | Browser shows 502/503 | Target health command in 3.7 | Pods not ready yet, or readiness failing |
-| `kubectl`/`helm` times out from the laptop | `curl -s https://checkip.amazonaws.com` | Your IP changed: update `my_ip`, `terraform apply`. Or set `eks_public_access_cidrs = ["0.0.0.0/0"]` in tfvars so the EKS API no longer depends on your IP |
+| `kubectl`/`helm` times out from the laptop | `curl -s https://checkip.amazonaws.com` | `terraform output admin_cidr`: if it's an old IP, set `admin_cidr` in `terraform/main.tf` and `terraform apply` |
 
 ## Tearing down (before `terraform destroy`)
 
