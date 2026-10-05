@@ -126,3 +126,7 @@ docker-compose.yml  app + MySQL 8.4 for local runs
 ## Deploying to AWS
 1. `terraform/README.md`: build the infrastructure
 2. `k8s/README.md`: install the cluster add-ons and deploy the app
+3. `Jenkinsfile`: CI/CD. Every new commit on the branch is tested, built, scanned with Trivy,
+   pushed to ECR (tag = commit ID) and deployed to EKS with `helm upgrade --atomic`.
+   Jenkins job: **New Item → Pipeline → Pipeline script from SCM → Git**, this repo URL,
+   branch `*/claude/java-hr-app-aws-deploy-6y122q`, script path `Jenkinsfile`.
