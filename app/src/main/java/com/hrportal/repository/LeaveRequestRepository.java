@@ -81,4 +81,14 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
             """)
     List<LeaveRequest> findApprovedBetween(@Param("employeeId") Long employeeId, @Param("from") LocalDate from,
                                            @Param("to") LocalDate to);
+
+    /** Approved leave of one type that touches the date range (unpaid leave for payroll). */
+    @Query("""
+            select l from LeaveRequest l
+            where l.status = com.hrportal.domain.LeaveStatus.APPROVED
+              and l.employee.id = :employeeId and l.type = :type
+              and l.startDate <= :to and l.endDate >= :from
+            """)
+    List<LeaveRequest> findApprovedOfTypeBetween(@Param("employeeId") Long employeeId, @Param("type") LeaveType type,
+                                                 @Param("from") LocalDate from, @Param("to") LocalDate to);
 }

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Payroll')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-payroll')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>Payroll</h1>
+            <p class="muted">One run per month. Review the draft, then finalize to publish payslips.</p></div>
+        <form method="post" th:action="@{/hr/payroll}" class="actions">
+            <label for="month" class="sr-only">Month</label>
+            <input id="month" type="month" name="month" th:value="${thisMonth}" th:max="${thisMonth}" required>
+            <button type="submit" class="btn primary">Run payroll</button>
+        </form>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Month</th><th>Status</th><th class="num">Employees</th><th class="num">Total gross</th>
+                <th class="num">Total net pay</th><th></th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(runs)}"><td colspan="6" class="empty">No payroll has been run yet.</td></tr>
+            <tr th:each="s : ${runs}">
+                <td th:text="${#temporals.format(s.run().month.atDay(1), 'MMMM yyyy')}"></td>
+                <td><span th:replace="~{fragments/layout :: payrollStatus(${s.run().status})}"></span></td>
+                <td class="num" th:text="${s.employees()}"></td>
+                <td class="num" th:text="${#numbers.formatDecimal(s.totalGross(), 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="num" th:text="${#numbers.formatDecimal(s.totalNet(), 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="num"><a class="btn small" th:href="@{/hr/payroll/{id}(id=${s.run().id})}">Open</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

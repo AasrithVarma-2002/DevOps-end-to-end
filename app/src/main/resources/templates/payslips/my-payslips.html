@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My payslips')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('payslips')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>My payslips</h1>
+            <p class="muted">Payslips appear here once HR finalizes the month's payroll.</p></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Month</th><th class="num">Paid days</th><th class="num">Gross</th>
+                <th class="num">Deductions</th><th class="num">Net pay</th><th></th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(payslips)}"><td colspan="6" class="empty">No payslips yet.</td></tr>
+            <tr th:each="p : ${payslips}">
+                <td th:text="${#temporals.format(p.month.atDay(1), 'MMMM yyyy')}">March 2026</td>
+                <td class="num" th:text="${p.paidDays.stripTrailingZeros().toPlainString()} + ' / ' + ${p.daysInMonth}"></td>
+                <td class="num" th:text="${#numbers.formatDecimal(p.grossEarned, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="num" th:text="${#numbers.formatDecimal(p.totalDeductions, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="num"><strong th:text="'₹ ' + ${#numbers.formatDecimal(p.netPay, 1, 'COMMA', 2, 'POINT')}"></strong></td>
+                <td class="num"><a class="btn small" th:href="@{/payslips/{id}/pdf(id=${p.id})}" target="_blank">Download PDF</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

@@ -15,6 +15,7 @@
         <th:block th:if="${me.hasEmployeeRecord()}">
             <a th:href="@{/leave}" th:classappend="${active == 'leave'} ? 'active'">My leave</a>
             <a th:href="@{/attendance}" th:classappend="${active == 'attendance'} ? 'active'">Attendance</a>
+            <a th:href="@{/payslips}" th:classappend="${active == 'payslips'} ? 'active'">Payslips</a>
         </th:block>
         <th:block th:if="${me.isManager() and me.hasEmployeeRecord()}">
             <a th:href="@{/team}" th:classappend="${active == 'team'} ? 'active'">My team</a>
@@ -27,6 +28,7 @@
             <a th:href="@{/hr/approvals}" th:classappend="${active == 'hr-approvals'} ? 'active'">HR approvals</a>
             <a th:href="@{/hr/leave}" th:classappend="${active == 'hr-leave'} ? 'active'">All leave</a>
             <a th:href="@{/hr/attendance}" th:classappend="${active == 'hr-attendance'} ? 'active'">Attendance</a>
+            <a th:href="@{/hr/payroll}" th:classappend="${active == 'hr-payroll'} ? 'active'">Payroll</a>
             <a th:href="@{/hr/departments}" th:classappend="${active == 'hr-departments'} ? 'active'">Departments</a>
             <a th:href="@{/hr/holidays}" th:classappend="${active == 'hr-holidays'} ? 'active'">Holidays</a>
             <a th:href="@{/hr/audit}" th:classappend="${active == 'hr-audit'} ? 'active'">Audit log</a>
@@ -63,6 +65,10 @@
 <!-- status pill for a leave request -->
 <span th:fragment="leaveStatus(status)" class="pill" th:classappend="${'st-' + #strings.toLowerCase(status.name())}"
       th:text="${status.label}">Status</span>
+
+<!-- status pill for a payroll run -->
+<span th:fragment="payrollStatus(status)" class="pill" th:classappend="${'pay-' + #strings.toLowerCase(status.name())}"
+      th:text="${status.label}">Draft</span>
 
 <!-- status pill for an attendance day -->
 <span th:fragment="dayStatus(status)" class="pill" th:classappend="${'day-' + #strings.toLowerCase(status.name())}"

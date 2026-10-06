@@ -97,6 +97,9 @@ a.tile:hover { border-color: var(--brand); text-decoration: none; }
 .st-approved, .st-active { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
 .st-rejected, .st-exited, .st-locked { background: var(--bad-bg); color: var(--bad); border-color: transparent; }
 .st-cancelled, .st-disabled { background: var(--surface-2); color: var(--muted); }
+/* payroll run statuses */
+.pay-draft { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.pay-finalized { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
 /* attendance day statuses */
 .day-present, .day-working { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
 .day-half_day, .day-missed_checkout { background: var(--warn-bg); color: var(--warn); border-color: transparent; }

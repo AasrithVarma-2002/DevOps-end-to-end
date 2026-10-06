@@ -36,6 +36,16 @@ output "external_secrets_role_arn" {
   value       = aws_iam_role.external_secrets.arn
 }
 
+output "app_role_arn" {
+  description = "IRSA role for the HR Portal pods (S3 documents). The Jenkinsfile sets it on the service account."
+  value       = aws_iam_role.app.arn
+}
+
+output "documents_bucket" {
+  description = "Private S3 bucket for payslip PDFs"
+  value       = aws_s3_bucket.documents.bucket
+}
+
 # ---------------------------------------------------------------- ECR
 
 output "ecr_repository_url" {

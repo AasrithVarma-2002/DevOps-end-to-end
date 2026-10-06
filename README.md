@@ -10,7 +10,7 @@ through a DevOps pipeline: Terraform → Docker → Amazon ECR → Jenkins → K
 |---|---|---|
 | **1** | Users and roles, onboarding, profiles, departments, manager hierarchy, leave (6 types, holidays, half days, two-step approval), offboarding, audit log, notifications | **Built** |
 | **2** | Attendance: check in/out, monthly calendar (present, half day, leave, holiday, absent), team view for managers, HR corrections | **Built** |
-| 3 | Payroll and PDF payslips, documents on S3, final settlement, relieving letters | Planned |
+| **3** | Payroll: monthly runs (draft → finalized), salary breakdown, loss of pay, PDF payslips stored in a private S3 bucket via IRSA | **Built** |
 | 4 | Email (SES), reminders, year-end carry-over, scheduled offboarding, reports, monitoring | Planned |
 
 ---
@@ -64,6 +64,32 @@ below it can.
   badge reader down). A correction needs a reason and is shown on the calendar and audited.
 - **Database:** one new table, `attendance_records` (Flyway `V3__attendance.sql`), one row per
   employee per day.
+
+
+## Stage 3 features: payroll and payslips
+
+- **Payroll runs:** HR runs payroll for a month (this month or earlier, once per month). The run
+  starts as a **draft**: HR reviews every payslip, can preview the PDFs, and recalculates after a
+  salary change or newly approved unpaid leave. **Finalizing** locks the month, stores each
+  payslip PDF in S3 and notifies the employees.
+- **Who is paid:** everyone employed on at least one day of the month, including joiners and
+  leavers, who are paid only for the days they were employed.
+- **Calculation** (`SalaryCalculator`): the employee's salary is the monthly gross.
+  - Earned gross = salary × paid days ÷ calendar days in the month.
+  - Loss of pay = approved **unpaid** leave (working days, half days count 0.5) + days before
+    joining or after the last working day. Paid leave types don't reduce pay.
+  - Basic 50%, HRA 20%, special allowance = the rest.
+  - Provident fund 12% of basic, with basic capped at 15,000 (at most 1,800).
+  - Professional tax 200 when earned gross is 15,000 or more.
+  - Net pay = earned gross − PF − professional tax. Income tax (TDS) is not calculated.
+- **Payslips:** employees see only their own finalized payslips and download the PDF. HR can
+  open any payslip. Each payslip keeps its figures as calculated, so later salary changes don't
+  rewrite history.
+- **Storage:** PDFs go to the private bucket `hr-portal-documents-<account>` (encrypted,
+  versioned, HTTPS only, no public access). The pods reach it with their own IRSA role
+  `hr-portal-app`, which may only read and write objects in that bucket. Locally and in tests
+  the PDFs are written to a folder instead (`app.storage.type=local`).
+- **Database:** `payroll_runs` and `payslips` (Flyway `V4__payroll.sql`).
 
 ## Run it locally
 

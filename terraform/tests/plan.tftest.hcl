@@ -53,6 +53,9 @@ mock_provider "aws" {
   mock_resource "aws_kms_key" {
     defaults = { arn = "arn:aws:kms:ap-south-1:123456789012:key/mock" }
   }
+  mock_resource "aws_s3_bucket" {
+    defaults = { arn = "arn:aws:s3:::hr-portal-documents-123456789012" }
+  }
   mock_resource "aws_secretsmanager_secret" {
     defaults = { arn = "arn:aws:secretsmanager:ap-south-1:123456789012:secret:mock" }
   }
@@ -105,6 +108,23 @@ run "apply_as_iam_user" {
   assert {
     condition     = aws_db_instance.main.publicly_accessible == false && aws_db_instance.main.storage_encrypted
     error_message = "RDS must be private and encrypted"
+  }
+  assert {
+    condition     = aws_s3_bucket.documents.bucket == "hr-portal-documents-123456789012" && aws_iam_role.app.name == "hr-portal-app"
+    error_message = "bucket and app role names must match what the Jenkinsfile builds from the account ID"
+  }
+  assert {
+    condition = alltrue([
+      aws_s3_bucket_public_access_block.documents.block_public_acls,
+      aws_s3_bucket_public_access_block.documents.block_public_policy,
+      aws_s3_bucket_public_access_block.documents.ignore_public_acls,
+      aws_s3_bucket_public_access_block.documents.restrict_public_buckets,
+    ])
+    error_message = "documents bucket must block all public access"
+  }
+  assert {
+    condition     = jsondecode(aws_iam_role_policy.app_documents.policy).Statement[0].Resource == "arn:aws:s3:::hr-portal-documents-123456789012/*"
+    error_message = "the app role may only use objects in the documents bucket"
   }
 }
 

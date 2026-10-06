@@ -33,6 +33,10 @@ pipeline {
           env.TAG   = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
           env.REPO  = "${env.ECR_REGISTRY}/${env.ECR_REPOSITORY}"
           env.IMAGE = "${env.REPO}:${env.TAG}"
+          // Same names as terraform/s3.tf and iam-irsa.tf, built from the account ID in the registry host
+          env.ACCOUNT_ID       = sh(script: 'echo "${ECR_REGISTRY%%.*}"', returnStdout: true).trim()
+          env.APP_ROLE_ARN     = "arn:aws:iam::${env.ACCOUNT_ID}:role/hr-portal-app"
+          env.DOCUMENTS_BUCKET = "hr-portal-documents-${env.ACCOUNT_ID}"
         }
         echo "Building ${env.IMAGE}"
       }
@@ -94,6 +98,8 @@ pipeline {
           helm upgrade --install "$RELEASE" helm/hr-portal --namespace "$NAMESPACE" \
             --set image.repository="$REPO" \
             --set image.tag="$TAG" \
+            --set app.documentsBucket="$DOCUMENTS_BUCKET" \
+            --set 'serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn'="$APP_ROLE_ARN" \
             --wait --timeout 10m --atomic
           kubectl -n "$NAMESPACE" get pods -o wide
           kubectl -n "$NAMESPACE" get ingress "$RELEASE"

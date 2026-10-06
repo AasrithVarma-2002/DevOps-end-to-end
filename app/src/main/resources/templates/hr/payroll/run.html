@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Payroll run')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-payroll')}"></header>
+<main class="stack" th:with="run=${summary.run()}">
+    <div class="page-head">
+        <div><h1 th:text="'Payroll ' + ${#temporals.format(run.month.atDay(1), 'MMMM yyyy')}">Payroll</h1>
+            <p class="muted">
+                <span th:replace="~{fragments/layout :: payrollStatus(${run.status})}"></span>
+                <span th:text="' · created by ' + ${run.createdBy}"></span>
+                <span th:if="${run.finalizedBy}" th:text="' · finalized by ' + ${run.finalizedBy}"></span>
+            </p></div>
+        <div class="actions" th:if="${run.draft}">
+            <form method="post" th:action="@{/hr/payroll/{id}/recalculate(id=${run.id})}">
+                <button type="submit" class="btn">Recalculate</button></form>
+            <form method="post" th:action="@{/hr/payroll/{id}/finalize(id=${run.id})}">
+                <button type="submit" class="btn approve">Finalize and publish</button></form>
+        </div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="alert info" th:if="${run.draft}">
+        Draft: employees can't see these payslips yet. Recalculate after changing a salary or approving
+        unpaid leave. Finalizing stores the PDFs and locks the month.</div>
+
+    <div class="balances">
+        <div class="balance"><div class="type">Employees</div><div class="left num" th:text="${summary.employees()}">0</div></div>
+        <div class="balance"><div class="type">Total gross</div>
+            <div class="left num" th:text="${#numbers.formatDecimal(summary.totalGross(), 1, 'COMMA', 0, 'POINT')}">0</div></div>
+        <div class="balance"><div class="type">Total net pay</div>
+            <div class="left num" th:text="${#numbers.formatDecimal(summary.totalNet(), 1, 'COMMA', 0, 'POINT')}">0</div></div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Employee</th><th class="num">Salary</th><th class="num">Paid / LOP days</th>
+                <th class="num">Gross</th><th class="num">PF</th><th class="num">Prof. tax</th><th class="num">Net pay</th><th></th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(payslips)}"><td colspan="8" class="empty">Nobody was employed in this month.</td></tr>
+            <tr th:each="p : ${payslips}">
+                <td><strong th:text="${p.employeeName}"></strong><div class="small muted" th:text="${p.employeeCode}"></div></td>
+                <td class="num" th:text="${#numbers.formatDecimal(p.monthlySalary, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="num" th:text="${p.paidDays.stripTrailingZeros().toPlainString()} + ' / ' + ${p.lopDays.stripTrailingZeros().toPlainString()}"></td>
+                <td class="num" th:text="${#numbers.formatDecimal(p.grossEarned, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="num" th:text="${#numbers.formatDecimal(p.providentFund, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="num" th:text="${#numbers.formatDecimal(p.professionalTax, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="num"><strong th:text="${#numbers.formatDecimal(p.netPay, 1, 'COMMA', 2, 'POINT')}"></strong></td>
+                <td class="num"><a class="btn small" th:href="@{/payslips/{id}/pdf(id=${p.id})}" target="_blank"
+                                   th:text="${run.draft} ? 'Preview PDF' : 'PDF'">PDF</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p><a th:href="@{/hr/payroll}">&larr; All payroll runs</a></p>
+</main>
+</body>
+</html>

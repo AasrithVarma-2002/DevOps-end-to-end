@@ -1,6 +1,7 @@
 # IAM roles for Kubernetes service accounts (IRSA).
 # A pod running as a specific service account gets temporary AWS credentials for exactly one role.
-# No access keys are stored anywhere. These roles are used by the add-ons installed in step 3.
+# No access keys are stored anywhere. Two roles are for the add-ons installed in step 3; the third
+# is for the HR Portal pods themselves (payslip PDFs in S3, stage 3).
 
 locals {
   oidc_provider_arn = module.eks.oidc_provider_arn
@@ -12,6 +13,7 @@ data "aws_iam_policy_document" "irsa_trust" {
   for_each = {
     lb_controller    = "kube-system:aws-load-balancer-controller"
     external_secrets = "external-secrets:external-secrets"
+    app              = "${local.app_namespace}:hr-portal" # the chart's service account
   }
 
   statement {
@@ -74,6 +76,29 @@ resource "aws_iam_role_policy" "external_secrets" {
       Effect   = "Allow"
       Action   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
       Resource = [aws_secretsmanager_secret.db.arn, aws_secretsmanager_secret.app_admin.arn]
+    }]
+  })
+}
+
+# ---------------------------------------------------------------- HR Portal app
+# The app's own pods: read and write documents in the documents bucket. Nothing else.
+# The role name is fixed so the Jenkinsfile can build its ARN from the account ID.
+
+resource "aws_iam_role" "app" {
+  name               = "${local.name}-app"
+  assume_role_policy = data.aws_iam_policy_document.irsa_trust["app"].json
+}
+
+resource "aws_iam_role_policy" "app_documents" {
+  name = "documents-bucket"
+  role = aws_iam_role.app.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid      = "ReadWriteDocuments"
+      Effect   = "Allow"
+      Action   = ["s3:PutObject", "s3:GetObject"]
+      Resource = "${aws_s3_bucket.documents.arn}/*"
     }]
   })
 }

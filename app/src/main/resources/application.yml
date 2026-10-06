@@ -32,6 +32,12 @@ app:
   time-zone: ${APP_TIME_ZONE:Asia/Kolkata}
   # Sample departments, employees and holidays; demo logins use Password@123
   demo-data: ${APP_DEMO_DATA:true}
+  # Payslip PDFs: a folder on disk locally, S3 in AWS (see the aws profile below)
+  storage:
+    type: ${APP_STORAGE_TYPE:local}
+    local-dir: ${APP_DOCUMENTS_DIR:${java.io.tmpdir}/hr-portal-documents}
+    bucket: ${APP_DOCUMENTS_BUCKET:}
+    region: ${AWS_REGION:ap-south-1}
   bootstrap:
     # First Super Admin, created only when the database has no logins
     admin-email: ${APP_ADMIN_EMAIL:admin@hrportal.local}
@@ -75,6 +81,11 @@ spring:
 
 app:
   demo-data: ${APP_DEMO_DATA:false}
+  # Private S3 bucket, reached with the pod's IRSA role (terraform/s3.tf, terraform/iam-irsa.tf)
+  storage:
+    type: ${APP_STORAGE_TYPE:s3}
+    # empty with type s3 = the app refuses to start (StorageConfig)
+    bucket: ${APP_DOCUMENTS_BUCKET:}
   bootstrap:
     admin-email: ${APP_ADMIN_EMAIL}
     admin-password: ${APP_ADMIN_PASSWORD}

@@ -20,6 +20,10 @@ app:
   demoData: false
   # Heap = 65% of the memory limit; the rest is left for metaspace, threads and buffers
   javaOpts: "-XX:MaxRAMPercentage=65 -XX:+ExitOnOutOfMemoryError"
+  # Region for AWS SDK calls (pods can't read it from instance metadata: IMDS hop limit 1)
+  awsRegion: ap-south-1
+  # Private S3 bucket for payslip PDFs (terraform output documents_bucket). Required.
+  documentsBucket: ""
 
 resources:
   requests:
@@ -30,7 +34,8 @@ resources:
 
 serviceAccount:
   name: hr-portal
-  # Stage 3 (S3 payslips) will add: eks.amazonaws.com/role-arn: <hr-portal-app role ARN>
+  # IRSA: the pods get the hr-portal-app role (S3 documents). Jenkins sets it on every deploy:
+  #   eks.amazonaws.com/role-arn: arn:aws:iam::<account>:role/hr-portal-app
   annotations: {}
 
 ingress:

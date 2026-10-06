@@ -171,9 +171,12 @@ aws ecr describe-images --region ap-south-1 --repository-name hr-portal \
 cd ~/projects/DevOps-end-to-end
 TAG=<the tag from 3.5>
 
+ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 helm upgrade --install hr-portal helm/hr-portal --namespace hr-portal \
   --set image.repository=$ECR_REPO \
-  --set image.tag=$TAG
+  --set image.tag=$TAG \
+  --set app.documentsBucket=hr-portal-documents-$ACCOUNT \
+  --set 'serviceAccount.annotations.eks\.amazonaws\.com/role-arn'=arn:aws:iam::$ACCOUNT:role/hr-portal-app
 
 kubectl -n hr-portal rollout status deployment/hr-portal --timeout=5m
 kubectl -n hr-portal get pods -o wide        # 2 pods Running, one per node/AZ

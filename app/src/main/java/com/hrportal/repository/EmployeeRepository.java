@@ -28,6 +28,14 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     List<Employee> findByManagerIdAndStatusOrderByFirstNameAsc(Long managerId, EmployeeStatus status);
 
+    /** Everyone employed on at least one day between the dates, including people who left in between. */
+    @Query("""
+            select e from Employee e
+            where e.joiningDate <= :to and (e.lastWorkingDay is null or e.lastWorkingDay >= :from)
+            order by e.firstName, e.lastName
+            """)
+    List<Employee> findEmployedBetween(@Param("from") java.time.LocalDate from, @Param("to") java.time.LocalDate to);
+
     long countByStatus(EmployeeStatus status);
 
     long countByDepartmentIdAndStatus(Long departmentId, EmployeeStatus status);

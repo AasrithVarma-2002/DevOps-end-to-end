@@ -132,9 +132,9 @@ class WebSecurityTest {
     @Test
     void eachRoleSeesOnlyItsOwnAreas() throws Exception {
         expect(employee, 200, "/", "/leave", "/leave/apply", "/profile", "/notifications", "/attendance",
-                "/attendance?month=2026-02");
+                "/attendance?month=2026-02", "/payslips");
         expect(employee, 403, "/team", "/team/approvals", "/team/attendance", "/hr/employees", "/hr/audit",
-                "/hr/attendance", "/admin/users");
+                "/hr/attendance", "/hr/payroll", "/admin/users");
 
         expect(manager, 200, "/team", "/team/approvals", "/team/attendance");
         expect(manager, 403, "/hr/employees", "/hr/approvals", "/hr/attendance", "/admin/users");
@@ -142,7 +142,7 @@ class WebSecurityTest {
         expect(hr, 200, "/hr/employees", "/hr/employees/new", "/hr/employees/" + employee.getId(),
                 "/hr/employees/" + employee.getId() + "/edit", "/hr/employees/" + employee.getId() + "/offboard",
                 "/hr/departments", "/hr/holidays", "/hr/approvals", "/hr/leave", "/hr/audit", "/team",
-                "/hr/attendance", "/hr/attendance?date=2026-03-02");
+                "/hr/attendance", "/hr/attendance?date=2026-03-02", "/hr/payroll");
         expect(hr, 403, "/admin/users");
     }
 
@@ -172,6 +172,31 @@ class WebSecurityTest {
                 .andExpect(content().string(containsString("done for today")));
         mvc.perform(get("/team/attendance").with(httpBasic(user(manager), TestData.PASSWORD)))
                 .andExpect(status().isOk()).andExpect(content().string(containsString(employee.getFullName())));
+    }
+
+    @Test
+    void hrRunsAndFinalizesPayrollThenTheEmployeeDownloadsTheirPayslip() throws Exception {
+        var hrAuth = httpBasic(user(hr), TestData.PASSWORD);
+        var result = mvc.perform(post("/hr/payroll").with(hrAuth).with(csrf()).param("month", "2025-12"))
+                .andExpect(status().is3xxRedirection()).andReturn();
+        String runPage = result.getResponse().getRedirectedUrl();
+        mvc.perform(get(runPage).with(hrAuth)).andExpect(status().isOk())
+                .andExpect(content().string(containsString(employee.getFullName())))
+                .andExpect(content().string(containsString("Preview PDF")));
+        mvc.perform(post(runPage + "/finalize").with(hrAuth).with(csrf())).andExpect(redirectedUrl(runPage));
+
+        var auth = httpBasic(user(employee), TestData.PASSWORD);
+        mvc.perform(get("/payslips").with(auth)).andExpect(status().isOk())
+                .andExpect(content().string(containsString("December 2025")));
+        String json = mvc.perform(get("/api/payslips").with(auth)).andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].month").value("2025-12"))
+                .andExpect(jsonPath("$[0].documentKey").doesNotExist())
+                .andReturn().getResponse().getContentAsString();
+        String id = String.valueOf(com.jayway.jsonpath.JsonPath.<Integer>read(json, "$[0].id"));
+        mvc.perform(get("/payslips/" + id + "/pdf").with(auth)).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF));
+        mvc.perform(get("/payslips/" + id + "/pdf").with(httpBasic(user(manager), TestData.PASSWORD)))
+                .andExpect(status().isForbidden());
     }
 
     // ------------------------------------------------------------------ REST API

@@ -38,6 +38,8 @@ services:
       APP_ADMIN_EMAIL: admin@hrportal.local
       APP_ADMIN_PASSWORD: Admin@12345
       APP_DEMO_DATA: "true"
+      # Payslip PDFs in a folder inside the container instead of S3
+      APP_STORAGE_TYPE: local
     ports:
       - "8080:8080"
 
