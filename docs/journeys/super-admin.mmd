@@ -1,43 +1,64 @@
 ---
-title: HR Portal Pro · Super Admin journey
+title: HR Portal Pro · Super Admin flow
 ---
-flowchart TD
-  A(["Super Admin signs in<br/>bootstrap login from Secrets Manager"]):::start --> P{"Password correct?"}:::decide
-  P -- "wrong 5 times" --> LK["Account locked"]:::bad
-  P -- "yes" --> D["Dashboard<br/>company counts, HR approvals waiting"]:::step
-  D --> PW["Change own password<br/>8+ chars, letters and numbers"]:::step
-  D --> SET["Company setup"]:::area
-  D --> ON["Onboard leaders"]:::area
-  D --> USR["Users page"]:::area
-  D --> HR["Everything HR Admin can do<br/>see the HR Admin flow"]:::area
-  D --> AUD["Audit log<br/>filter by record type, search"]:::step
-  D --> API["REST API<br/>Swagger UI, HTTP Basic"]:::step
+flowchart TB
+  START(["Super Admin opens the portal<br/>ALB URL → /login"]):::start
 
-  SET --> DEP["Departments<br/>add, rename"]:::step
-  DEP --> DD{"Delete: has or had employees?"}:::decide
-  DD -- "yes" --> DDN["Refused"]:::bad
-  DD -- "no" --> DDY["Deleted"]:::good
-  SET --> HOL["Holidays<br/>add, delete"]:::step
-  HOL --> HD{"Date already a holiday?"}:::decide
-  HD -- "yes" --> HDN["Refused"]:::bad
-  HD -- "no" --> HDY["Shown on leave forms and calendars"]:::good
+  subgraph S1["① Sign in"]
+    direction LR
+    A1["Enter bootstrap login<br/>APP_ADMIN_EMAIL + password<br/>from Secrets Manager"]:::step --> A2{"Password<br/>correct?"}:::decide
+    A2 -- "no, 5 times" --> A3["Account locked<br/>HR notified"]:::bad
+    A2 -- "yes" --> A4["Dashboard<br/>company counts,<br/>HR approvals waiting"]:::good
+    A4 --> A5["Change own password<br/>8+ chars, letters + numbers"]:::step
+  end
 
-  ON --> NEW["New employee form<br/>department, manager, salary, joining date"]:::step
-  NEW --> R{"Role chosen"}:::decide
-  R -- "HR Admin or Super Admin<br/>only a Super Admin may grant" --> T
-  R -- "Manager or Employee" --> T["Login created<br/>temporary password shown once"]:::good
-  T --> M1["Welcome email to the new hire<br/>joining email to their manager"]:::mail
+  subgraph S2["② Set up the company"]
+    direction LR
+    B1["HR → Departments<br/>add Engineering, HR, Finance"]:::step --> B2["Rename a department"]:::step --> B3{"Delete: does it have<br/>or had employees?"}:::decide
+    B3 -- "yes" --> B4["Refused"]:::bad
+    B3 -- "no" --> B5["Deleted"]:::good
+    B1 ~~~ B6
+    B6["HR → Holidays<br/>add public holidays"]:::step --> B7{"Date already<br/>a holiday?"}:::decide
+    B7 -- "yes" --> B8["Refused"]:::bad
+    B7 -- "no" --> B9["Used by leave counting<br/>and attendance calendars"]:::good
+  end
 
-  USR --> ROLE{"Change role: own account?"}:::decide
-  ROLE -- "yes" --> RN["Refused"]:::bad
-  ROLE -- "no" --> RY["Role changed<br/>audit: old → new"]:::good
-  USR --> UL["Unlock a locked account<br/>failed attempts reset"]:::good
-  USR --> RS["Reset password<br/>temporary password, must change at next sign-in"]:::good
-  USR --> EN{"Disable or enable"}:::decide
-  EN -- "own account, or re-enable someone who left" --> EN1["Refused"]:::bad
-  EN -- "otherwise" --> EN2["Login disabled or enabled"]:::good
+  subgraph S3["③ Onboard the leaders"]
+    direction LR
+    C1["HR → Employees → New<br/>name, email, department,<br/>salary, joining date"]:::step --> C2{"Role?"}:::decide
+    C2 -- "HR Admin or<br/>Super Admin" --> C2a["Allowed: only a<br/>Super Admin can grant it"]:::decide
+    C2 -- "Manager or<br/>Employee" --> C3["Login created<br/>temporary password shown once"]:::good
+    C2a --> C3
+    C3 --> C4["Welcome email to new hire<br/>joining email to their manager"]:::mail
+    C4 --> C5["New user's first sign-in:<br/>change password → complete profile"]:::step
+  end
 
-  RY & UL & RS & EN2 & DDY & T --> AUD
+  subgraph S4["④ Manage logins (Users page)"]
+    direction LR
+    D1["Users list<br/>role · status · last sign-in"]:::area
+    D1 --> D2{"Change role:<br/>own account?"}:::decide
+    D2 -- "yes" --> D3["Refused"]:::bad
+    D2 -- "no" --> D4["Role changed"]:::good
+    D1 --> D5["Unlock locked account<br/>failed attempts reset"]:::good
+    D1 --> D6["Reset password<br/>temp password, must change"]:::good
+    D1 --> D7{"Disable / enable:<br/>own account or<br/>person who left?"}:::decide
+    D7 -- "yes" --> D8["Refused"]:::bad
+    D7 -- "no" --> D9["Login disabled / enabled"]:::good
+  end
+
+  subgraph S5["⑤ Oversight"]
+    direction LR
+    E1["Audit log<br/>every action: who, when, old → new"]:::step
+    E2["Everything HR Admin does<br/>leave, attendance, payroll,<br/>documents, reports, offboarding"]:::area
+    E3["REST API<br/>/swagger-ui.html, HTTP Basic"]:::step
+  end
+
+  START --> S1
+  S1 --> S2
+  S2 --> S3
+  S3 --> S4
+  S4 --> S5
+
   classDef start fill:#1f4e79,stroke:#1f4e79,color:#ffffff,font-weight:bold
   classDef step fill:#ffffff,stroke:#9aa7b4,color:#18222c
   classDef area fill:#e5eef6,stroke:#1f4e79,color:#12324f,font-weight:bold
@@ -45,3 +66,8 @@ flowchart TD
   classDef good fill:#e6f4ea,stroke:#2b8a3e,color:#14532d
   classDef bad fill:#fdecec,stroke:#c92a2a,color:#7f1d1d
   classDef mail fill:#fde8f3,stroke:#c2255c,color:#7a1340
+  style S1 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style S2 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style S3 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style S4 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style S5 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
