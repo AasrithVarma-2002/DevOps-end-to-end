@@ -1,69 +1,112 @@
 ---
-title: HR Portal Pro · Super Admin workflow
+title: Super Admin · step-by-step workflow for every module
 ---
-sequenceDiagram
-  autonumber
-  actor SA as Super Admin
-  participant APP as HR Portal (app)
-  participant DB as MySQL (RDS)
-  participant SES as Email (SES)
-  actor NU as New HR Admin / Manager
-
-  rect rgb(239, 232, 251)
-  Note over SA,NU: Phase 1 · Sign in
-  SA->>APP: Open ALB URL, sign in with bootstrap login
-  APP->>DB: Check password (BCrypt), failed-attempt count
-  alt 5 wrong passwords
-    APP-->>SA: Account locked
-    APP->>SES: Email HR: "account locked"
-  else correct
-    APP-->>SA: Dashboard (company counts, HR approvals waiting)
-  end
-  SA->>APP: Change own password (8+ chars, letters + numbers)
-  APP->>DB: Save new hash + audit entry
+flowchart TB
+  subgraph M0["Sign in"]
+    direction LR
+    a1(["Open the HR Portal"]):::start --> a2["Enter email and password"]:::s --> a3["Click Sign in"]:::act --> a4["Dashboard opens"]:::ok
+    a4 --> a5["Top-right menu → Change password"]:::act --> a6["Enter current and new password<br/>→ click Change password"]:::act --> a7["Password changed"]:::ok
   end
 
-  rect rgb(226, 244, 240)
-  Note over SA,NU: Phase 2 · Set up the company
-  SA->>APP: Add departments (Engineering, HR, Finance)
-  APP->>DB: Save · names must be unique
-  SA->>APP: Add public holidays
-  APP->>DB: Save · same date twice is refused
-  opt Delete a department
-    APP-->>SA: Refused if it has or had employees
-  end
+  subgraph M1["Departments"]
+    direction LR
+    b1["Click Departments"]:::menu --> b2["Type name and location"]:::s --> b3["Click Add department"]:::act --> b4["Department added"]:::ok
+    b4 --> b5["Edit a name → click Save"]:::act
+    b4 --> b6["Click Delete<br/>only if nobody works there"]:::act
   end
 
-  rect rgb(227, 237, 251)
-  Note over SA,NU: Phase 3 · Onboard the leaders
-  SA->>APP: New employee: name, email, department, salary, joining date, role HR Admin
-  Note right of APP: Only a Super Admin may grant HR Admin or Super Admin
-  APP->>DB: Create employee + login, leave balances, audit entry
-  APP-->>SA: Temporary password, shown once
-  APP->>SES: Welcome email to the new hire (after commit)
-  SES-->>NU: "Welcome to HR Portal Pro"
-  SA-->>NU: Share the temporary password securely
-  NU->>APP: First sign-in
-  APP-->>NU: Must change password, then complete profile
+  subgraph M2["Holidays"]
+    direction LR
+    c1["Click Holidays"]:::menu --> c2["Pick a date, type the name<br/>e.g. Diwali"]:::s --> c3["Click Add holiday"]:::act --> c4["Holiday added to the calendar"]:::ok
+    c4 --> c5["Click Remove to delete one"]:::act
   end
 
-  rect rgb(251, 239, 220)
-  Note over SA,NU: Phase 4 · Manage logins (Users page)
-  SA->>APP: Change a user's role
-  APP->>DB: Save · audit "role: old → new" (own role is refused)
-  SA->>APP: Unlock a locked account
-  APP->>DB: Reset failed attempts · audit
-  SA->>APP: Reset a password
-  APP-->>SA: New temporary password (user must change it)
-  SA->>APP: Disable / enable a login
-  APP->>DB: Save · own account or someone who left is refused
+  subgraph M3["Employees"]
+    direction LR
+    d1["Click Employees"]:::menu --> d2["Click Onboard new hire"]:::act --> d3["Fill in name, work email, code,<br/>job title, department, manager,<br/>salary, joining date"]:::s --> d4["Choose Access level<br/>HR Admin, Manager or Employee"]:::s --> d5["Click Save"]:::act --> d6["Temporary password shown<br/>→ share it with the new hire"]:::ok --> d7["New hire gets a welcome email"]:::mail
+    d1 --> d8["Search by name or code,<br/>pick department and status<br/>→ click Filter"]:::act --> d9["Click a name<br/>to open the employee"]:::act
+    d9 --> d10["Click Edit → change title,<br/>manager or salary → Save"]:::act
+    d9 --> d11["Click Documents<br/>→ see their files, share a letter"]:::act
+    d9 --> d12["Click Offboard → last working day<br/>+ reason → Offboard employee"]:::act --> d13["Employee marked as left,<br/>login switched off"]:::ok
   end
 
-  rect rgb(244, 246, 248)
-  Note over SA,NU: Phase 5 · Oversight
-  SA->>APP: Open the audit log, filter by record type
-  APP->>DB: Read audit entries
-  APP-->>SA: Who did what, when, old → new
-  SA->>APP: Everything HR does: leave, attendance, payroll, documents, reports
-  SA->>APP: REST API via /swagger-ui.html (HTTP Basic)
+  subgraph M4["HR approvals"]
+    direction LR
+    e1["Click HR approvals"]:::menu --> e2["See leave waiting for HR<br/>long leave or no manager"]:::s --> e3["Type a comment if needed"]:::s --> e4{"Decide"}:::decide
+    e4 -- "Approve" --> e5["Leave approved<br/>employee emailed"]:::ok
+    e4 -- "Reject" --> e6["Leave rejected<br/>employee sees your comment"]:::no
   end
+
+  subgraph M5["All leave"]
+    direction LR
+    f1["Click All leave"]:::menu --> f2["Filter by status"]:::act --> f3["Click Cancel on a request"]:::act --> f4["Leave cancelled, days returned,<br/>employee told"]:::ok
+  end
+
+  subgraph M6["Attendance"]
+    direction LR
+    g1["Click Attendance"]:::menu --> g2["Pick a date → click Show"]:::act --> g3["Everyone's status that day"]:::ok
+    g3 --> g4["For a past day: enter check-in,<br/>check-out and a reason → Save"]:::act --> g5["Day corrected"]:::ok
+  end
+
+  subgraph M7["Payroll"]
+    direction LR
+    h1["Click Payroll"]:::menu --> h2["Pick last month<br/>→ click Run payroll"]:::act --> h3["Draft payroll with<br/>every employee's payslip"]:::s --> h4["Click PDF to preview a payslip"]:::act
+    h4 --> h5{"All correct?"}:::decide
+    h5 -- "No, something changed" --> h6["Click Recalculate"]:::act --> h3
+    h5 -- "Yes" --> h7["Click Finalize and publish"]:::act --> h8["Payroll locked,<br/>payslips sent to everyone"]:::mail
+  end
+
+  subgraph M8["Documents"]
+    direction LR
+    i1["Click Documents"]:::menu --> i2["Click a file name to open it"]:::act --> i3{"Is it correct?"}:::decide
+    i3 -- "Yes" --> i4["Click Verify"]:::ok
+    i3 -- "No" --> i5["Type the reason → click Reject"]:::no
+    i1 --> i6["Onboarding checklist:<br/>see who is missing what → Open"]:::act
+  end
+
+  subgraph M9["Reports"]
+    direction LR
+    j1["Click Reports"]:::menu --> j2["Attendance: pick month<br/>→ Download CSV"]:::act
+    j1 --> j3["Leave balances: pick year<br/>→ Download CSV"]:::act
+    j1 --> j4["Payroll register: pick month<br/>→ Download CSV"]:::act
+    j2 & j3 & j4 --> j5["Opens in Excel"]:::ok
+  end
+
+  subgraph M10["Users"]
+    direction LR
+    k1["Click Users"]:::menu --> k2["See every login, role and status"]:::s
+    k2 --> k3["Pick a new role → click Set"]:::act
+    k2 --> k4["Click Unlock<br/>for a locked account"]:::act
+    k2 --> k5["Click Reset password<br/>→ share the new temporary one"]:::act
+    k2 --> k6["Click Disable or Enable"]:::act
+  end
+
+  subgraph M11["Audit log and notifications"]
+    direction LR
+    l1["Click Audit log"]:::menu --> l2["Search or pick a record type<br/>→ click Filter"]:::act --> l3["See who did what and when"]:::ok
+    l4["Click the bell icon"]:::menu --> l5["Read alerts → click Mark all as read"]:::act
+  end
+
+  M0 --> M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7 --> M8 --> M9 --> M10 --> M11
+  l5 --> z(["Top-right menu → Sign out"]):::start
+
+  classDef start fill:#1f4e79,stroke:#1f4e79,color:#ffffff,font-weight:bold
+  classDef menu fill:#6d3fc0,stroke:#6d3fc0,color:#ffffff,font-weight:bold
+  classDef act fill:#e5eef6,stroke:#1f4e79,color:#12324f
+  classDef s fill:#ffffff,stroke:#9aa7b4,color:#18222c
+  classDef decide fill:#fff6e6,stroke:#c98a1b,color:#5a3a00
+  classDef ok fill:#e6f4ea,stroke:#2b8a3e,color:#14532d
+  classDef no fill:#fdecec,stroke:#c92a2a,color:#7f1d1d
+  classDef mail fill:#fde8f3,stroke:#c2255c,color:#7a1340
+  style M0 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M1 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M2 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M3 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M4 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M5 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M6 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M7 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M8 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M9 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M10 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
+  style M11 fill:#f7f9fb,stroke:#6d3fc0,stroke-width:2px
