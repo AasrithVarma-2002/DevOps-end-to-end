@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Kubernetes probes and the ALB health check call this without credentials
                         .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
-                        .requestMatchers("/css/**", "/login", "/error").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/login", "/error").permitAll()
                         .requestMatchers("/team/**", "/api/team/**").hasRole("MANAGER")
                         .requestMatchers("/hr/**", "/api/hr/**").hasRole("HR_ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/**").hasRole("SUPER_ADMIN")

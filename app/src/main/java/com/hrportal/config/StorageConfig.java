@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 /** app.storage.type: "s3" in AWS (aws profile), "local" everywhere else. */
 @Configuration
@@ -23,7 +24,8 @@ public class StorageConfig {
             throw new IllegalStateException("app.storage.bucket (APP_DOCUMENTS_BUCKET) must be set when app.storage.type=s3");
         }
         // Region is explicit: pods can't read it from the node's instance metadata (hop limit 1)
-        return new S3DocumentStorage(S3Client.builder().region(Region.of(region)).build(), bucket);
+        Region r = Region.of(region);
+        return new S3DocumentStorage(S3Client.builder().region(r).build(), S3Presigner.builder().region(r).build(), bucket);
     }
 
     @Bean

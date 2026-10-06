@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Documents')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-documents')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>Documents</h1>
+            <p class="muted">Verify what employees upload, and see whose onboarding documents are still missing.</p></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="stack">
+        <h2 th:text="'Waiting for verification (' + ${#lists.size(pending)} + ')'">Waiting for verification</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Employee</th><th>Document</th><th>File</th><th>Uploaded</th><th>Decision</th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(pending)}"><td colspan="5" class="empty">Nothing is waiting for verification.</td></tr>
+                <tr th:each="d : ${pending}">
+                    <td><a th:href="@{/hr/employees/{id}/documents(id=${d.employeeId})}"><strong th:text="${d.employeeName}"></strong></a>
+                        <div class="small muted" th:text="${d.employee.employeeCode}"></div></td>
+                    <td th:text="${d.type.label}"></td>
+                    <td class="small"><a th:href="@{/documents/{id}/file(id=${d.id})}" target="_blank" rel="noopener" th:text="${d.fileName}"></a>
+                        <span class="muted" th:text="'· ' + ${d.sizeLabel}"></span></td>
+                    <td class="small" th:text="${#temporals.format(d.uploadedAt, 'd MMM yyyy HH:mm')}"></td>
+                    <td>
+                        <form class="decision" method="post" th:action="@{/hr/documents/{id}/verify(id=${d.id})}">
+                            <input name="note" th:id="'n' + ${d.id}" placeholder="Reason (needed to reject)" maxlength="500" aria-label="Note">
+                            <button type="submit" class="btn small approve">Verify</button>
+                            <button type="submit" class="btn small danger" th:formaction="@{/hr/documents/{id}/reject(id=${d.id})}">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="stack">
+        <h2>Onboarding checklist</h2>
+        <p class="muted small">Every employee needs a verified copy of each required document. People with the most missing are listed first.</p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Employee</th><th class="num">Verified</th><th>Still needed</th><th></th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(checklists)}"><td colspan="4" class="empty">No active employees.</td></tr>
+                <tr th:each="c : ${checklists}">
+                    <td><strong th:text="${c.employee().fullName}"></strong>
+                        <div class="small muted" th:text="${c.employee().department.name}"></div></td>
+                    <td class="num" th:text="${c.done()} + ' / ' + ${c.total()}"></td>
+                    <td class="small">
+                        <span th:if="${c.complete}" class="pill doc-verified">Complete</span>
+                        <span th:each="i, st : ${c.outstanding()}">
+                            <span th:text="${i.type().label}"></span>
+                            <span class="muted" th:if="${i.latest() != null}" th:text="'(' + ${i.latest().status.label} + ')'"></span><span th:unless="${st.last}">; </span>
+                        </span>
+                    </td>
+                    <td class="num"><a class="btn small" th:href="@{/hr/employees/{id}/documents(id=${c.employee().id})}">Open</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

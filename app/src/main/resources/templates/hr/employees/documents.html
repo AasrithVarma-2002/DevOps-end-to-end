@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${employee.fullName} + ' · documents')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-documents')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div>
+            <h1 th:text="${employee.fullName} + ': documents'">Name: documents</h1>
+            <p class="muted" th:text="${employee.employeeCode} + ' · ' + ${employee.jobTitle} + ' · ' + ${employee.department.name}"></p>
+        </div>
+        <div class="actions"><a class="btn" th:href="@{/hr/employees/{id}(id=${employee.id})}">Back to employee</a></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="alert warn" th:unless="${employee.active}"
+         th:text="'Left the company on ' + ${employee.lastWorkingDay} + '. You can still issue letters, e.g. an experience letter.'"></div>
+
+    <div th:replace="~{fragments/layout :: docChecklist(${checklist})}"></div>
+
+    <div class="grid-2">
+        <form class="card form" th:action="@{/hr/employees/{id}/documents(id=${employee.id})}" method="post"
+              enctype="multipart/form-data" data-max-upload>
+            <h2>Share a letter</h2>
+            <label for="type">Letter
+                <select id="type" name="type" required>
+                    <option th:each="t : ${letterTypes}" th:value="${t}" th:text="${t.label}"></option>
+                </select></label>
+            <label for="file">File <span class="hint" th:text="'PDF, PNG or JPEG, up to ' + ${maxMb} + ' MB'">PDF</span>
+                <input id="file" type="file" name="file" required accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+                       th:attr="data-max-bytes=${maxMb * 1024 * 1024}"></label>
+            <p class="small upload-error" role="alert" hidden></p>
+            <div class="actions"><button type="submit" class="btn primary">Share with employee</button></div>
+        </form>
+        <section class="card">
+            <h2>Good to know</h2>
+            <ul class="small">
+                <li>The employee is notified and emailed when you share a letter.</li>
+                <li>Opening someone's document is recorded in the audit log.</li>
+                <li>You can't verify your own documents. Another HR admin has to.</li>
+            </ul>
+        </section>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Document</th><th>File</th><th>Uploaded</th><th>Status</th><th>Decision</th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(documents)}"><td colspan="5" class="empty">No documents yet.</td></tr>
+            <tr th:each="d : ${documents}">
+                <td><strong th:text="${d.type.label}"></strong></td>
+                <td class="small"><a th:href="@{/documents/{id}/file(id=${d.id})}" target="_blank" rel="noopener" th:text="${d.fileName}"></a>
+                    <span class="muted" th:text="'· ' + ${d.sizeLabel}"></span></td>
+                <td class="small"><span th:text="${#temporals.format(d.uploadedAt, 'd MMM yyyy')}"></span>
+                    <div class="muted" th:text="'by ' + ${d.uploadedBy}"></div></td>
+                <td><span th:replace="~{fragments/layout :: docStatus(${d.status})}"></span>
+                    <div class="small" th:if="${d.reviewNote}" th:text="'“' + ${d.reviewNote} + '”'"></div>
+                    <div class="small muted" th:if="${d.reviewedBy}" th:text="'by ' + ${d.reviewedBy}"></div></td>
+                <td>
+                    <form th:if="${d.status.name() == 'PENDING'}" class="decision" method="post" th:action="@{/hr/documents/{id}/verify(id=${d.id})}">
+                        <input type="hidden" name="back" th:value="'/hr/employees/' + ${employee.id} + '/documents'">
+                        <input name="note" th:id="'n' + ${d.id}" placeholder="Reason (needed to reject)" maxlength="500" aria-label="Note">
+                        <button type="submit" class="btn small approve">Verify</button>
+                        <button type="submit" class="btn small danger" th:formaction="@{/hr/documents/{id}/reject(id=${d.id})}">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<script th:replace="~{fragments/layout :: uploadCheck}"></script>
+</body>
+</html>

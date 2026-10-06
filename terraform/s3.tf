@@ -1,7 +1,9 @@
-# Private bucket for generated documents (payslip PDFs, stage 3). Only the app's IRSA role can
-# read and write it (iam-irsa.tf); nothing in it is ever public.
+# Private bucket for stored files: payslip PDFs (payslips/...) and employee documents
+# (documents/...). Only the app's IRSA role can read and write it (iam-irsa.tf); nothing in it
+# is ever public. Browsers download through 5-minute presigned links the app signs with that role.
 #
 #   pod (service account hr-portal) ─IRSA─► role hr-portal-app ─► s3://hr-portal-documents-<account>/payslips/...
+#                                                                                                  /documents/...
 
 resource "aws_s3_bucket" "documents" {
   # Bucket names are global across all AWS accounts, so the account ID makes it unique.
@@ -58,6 +60,21 @@ resource "aws_s3_bucket_lifecycle_configuration" "documents" {
     }
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
+    }
+  }
+
+  # Employee documents are kept for the whole employment but rarely opened after onboarding:
+  # Standard-IA costs ~45% less to store and still opens instantly (Glacier would need a
+  # restore first, which breaks the download links).
+  rule {
+    id     = "documents-to-infrequent-access"
+    status = "Enabled"
+    filter {
+      prefix = "documents/"
+    }
+    transition {
+      days          = 90
+      storage_class = "STANDARD_IA"
     }
   }
 }

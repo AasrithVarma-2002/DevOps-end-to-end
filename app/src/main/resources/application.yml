@@ -3,6 +3,9 @@ server:
   # Behind the AWS load balancer: trust X-Forwarded-* headers for redirects
   forward-headers-strategy: framework
   shutdown: graceful
+  tomcat:
+    # read (and discard) a refused upload up to this size, so the browser gets an answer instead of a reset
+    max-swallow-size: 12MB
 
 spring:
   application:
@@ -21,6 +24,12 @@ spring:
     locations: classpath:db/migration
   lifecycle:
     timeout-per-shutdown-phase: 20s
+  # Document uploads: the app allows 5 MB per file (EmployeeDocumentService); this outer limit only
+  # stops very large requests early, so files between 5 and 10 MB still get a clear message
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
   session:
     timeout: 30m
     jdbc:
@@ -42,7 +51,7 @@ app:
   # Scheduled reminders (only one pod runs each, see ShedLock); false switches them off
   jobs:
     enabled: ${APP_JOBS_ENABLED:true}
-  # Payslip PDFs: a folder on disk locally, S3 in AWS (see the aws profile below)
+  # Payslip PDFs and employee documents: a folder on disk locally, S3 in AWS (see the aws profile below)
   storage:
     type: ${APP_STORAGE_TYPE:local}
     local-dir: ${APP_DOCUMENTS_DIR:${java.io.tmpdir}/hr-portal-documents}

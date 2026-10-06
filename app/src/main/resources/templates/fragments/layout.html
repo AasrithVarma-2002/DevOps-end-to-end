@@ -16,6 +16,7 @@
             <a th:href="@{/leave}" th:classappend="${active == 'leave'} ? 'active'">My leave</a>
             <a th:href="@{/attendance}" th:classappend="${active == 'attendance'} ? 'active'">Attendance</a>
             <a th:href="@{/payslips}" th:classappend="${active == 'payslips'} ? 'active'">Payslips</a>
+            <a th:href="@{/documents}" th:classappend="${active == 'documents'} ? 'active'">Documents</a>
         </th:block>
         <th:block th:if="${me.isManager() and me.hasEmployeeRecord()}">
             <a th:href="@{/team}" th:classappend="${active == 'team'} ? 'active'">My team</a>
@@ -29,6 +30,7 @@
             <a th:href="@{/hr/leave}" th:classappend="${active == 'hr-leave'} ? 'active'">All leave</a>
             <a th:href="@{/hr/attendance}" th:classappend="${active == 'hr-attendance'} ? 'active'">Attendance</a>
             <a th:href="@{/hr/payroll}" th:classappend="${active == 'hr-payroll'} ? 'active'">Payroll</a>
+            <a th:href="@{/hr/documents}" th:classappend="${active == 'hr-documents'} ? 'active'">Documents</a>
             <a th:href="@{/hr/reports}" th:classappend="${active == 'hr-reports'} ? 'active'">Reports</a>
             <a th:href="@{/hr/departments}" th:classappend="${active == 'hr-departments'} ? 'active'">Departments</a>
             <a th:href="@{/hr/holidays}" th:classappend="${active == 'hr-holidays'} ? 'active'">Holidays</a>
@@ -113,6 +115,26 @@
         </th:block>
     </div>
 </div>
+
+<!-- status pill for an employee document -->
+<span th:fragment="docStatus(status)" class="pill" th:classappend="${'doc-' + #strings.toLowerCase(status.name())}"
+      th:text="${status.label}">Verified</span>
+
+<!-- onboarding checklist; EmployeeDocumentService.Checklist -->
+<section th:fragment="docChecklist(c)" class="card">
+    <h2 th:text="'Onboarding documents: ' + ${c.done()} + ' of ' + ${c.total()} + ' verified'">Onboarding documents</h2>
+    <ul class="checklist">
+        <li th:each="i : ${c.items()}" th:classappend="${i.done} ? 'done'">
+            <span class="tick" aria-hidden="true" th:text="${i.done} ? '✓' : '○'">○</span>
+            <span th:text="${i.type().label}">PAN card</span>
+            <th:block th:if="${i.latest() != null}"><span th:replace="~{fragments/layout :: docStatus(${i.latest().status})}"></span></th:block>
+            <span th:if="${i.latest() == null}" class="pill">Not uploaded</span>
+        </li>
+    </ul>
+</section>
+
+<!-- warns about a too-large file before it is uploaded -->
+<script th:fragment="uploadCheck" th:src="@{/js/upload-check.js}" defer></script>
 
 </body>
 </html>

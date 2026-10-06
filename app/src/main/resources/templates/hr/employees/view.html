@@ -9,9 +9,10 @@
             <h1 th:text="${employee.fullName}">Name</h1>
             <p class="muted" th:text="${employee.employeeCode} + ' · ' + ${employee.jobTitle} + ' · ' + ${employee.department.name}"></p>
         </div>
-        <div class="actions" th:if="${employee.active}">
-            <a class="btn" th:href="@{/hr/employees/{id}/edit(id=${employee.id})}">Edit</a>
-            <a class="btn danger" th:href="@{/hr/employees/{id}/offboard(id=${employee.id})}">Offboard</a>
+        <div class="actions">
+            <a class="btn" th:href="@{/hr/employees/{id}/documents(id=${employee.id})}">Documents</a>
+            <a class="btn" th:if="${employee.active}" th:href="@{/hr/employees/{id}/edit(id=${employee.id})}">Edit</a>
+            <a class="btn danger" th:if="${employee.active}" th:href="@{/hr/employees/{id}/offboard(id=${employee.id})}">Offboard</a>
         </div>
     </div>
 

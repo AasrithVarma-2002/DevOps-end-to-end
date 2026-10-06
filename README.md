@@ -12,6 +12,7 @@ through a DevOps pipeline: Terraform → Docker → Amazon ECR → Jenkins → K
 | **2** | Attendance: check in/out, monthly calendar (present, half day, leave, holiday, absent), team view for managers, HR corrections | **Built** |
 | **3** | Payroll: monthly runs (draft → finalized), salary breakdown, loss of pay, PDF payslips stored in a private S3 bucket via IRSA | **Built** |
 | **4** | Email notifications (Amazon SES), scheduled reminders (ShedLock, one pod per job), CSV reports | **Built** (monitoring: next) |
+| **+** | Employee documents: uploads verified by HR, onboarding checklist, letters from HR, S3 presigned downloads | **Built** |
 
 ---
 
@@ -112,6 +113,30 @@ below it can.
   audited). Cells that start with `=`, `+`, `-` or `@` are prefixed with `'` so a spreadsheet
   never runs them as formulas.
 
+## Employee documents
+
+- **Employees upload proofs** (My documents): identity proof, PAN card, address proof, highest
+  education certificate and bank details make up the **onboarding checklist**; a previous
+  employer's relieving letter and "other" are optional. Each upload waits for HR.
+- **HR verifies or rejects** (HR → Documents). A rejection needs a reason, which the employee
+  sees; they then upload a clearer copy. HR can't verify their own documents. The same page
+  lists every employee's checklist, the ones with the most missing first.
+- **Letters from HR:** on an employee's page, HR → Documents shares an offer, appraisal or
+  experience letter with them (also after they have left).
+- **Every step notifies and emails** the other side, and goes in the audit log, including HR
+  opening someone else's file.
+- **File checks:** PDF, PNG or JPEG only, at most 5 MB. The type is decided by the file's first
+  bytes, not its name or what the browser claims, so a renamed web page or script is refused.
+  Names are cleaned for display; the stored key is random:
+  `s3://hr-portal-documents-<account>/documents/{employeeCode}/{uuid}.pdf`.
+- **Who can open a file:** the employee themselves and HR. Not managers or colleagues.
+- **Downloads in AWS:** the app checks access, then redirects the browser to a **presigned S3
+  link valid for 5 minutes**, signed with the pod's IRSA role. The file goes straight from S3
+  to the browser over HTTPS and never passes through the pods. Locally the app sends the file.
+- **Storage class:** after 90 days documents move to S3 Standard-IA (cheaper, still instant to
+  open), a lifecycle rule in `terraform/s3.tf`.
+- **Database:** `employee_documents` (Flyway `V6__employee_documents.sql`).
+
 ### Turning on emails in AWS
 
 1. In `terraform/terraform.tfvars` set `notification_email = "you@example.com"` and run
@@ -159,8 +184,10 @@ All demo employees use the password `Password@123`.
 cd app
 ./mvnw verify
 ```
-47 tests cover the leave rules, the approval flow, onboarding and offboarding, the password
-policy, account lockout, role-based access for every page, and the REST API.
+114 tests cover the leave rules, the approval flow, onboarding and offboarding, attendance,
+payroll, emails and reminders, reports, employee documents (file checks, verification, who may
+open what, presigned links), the password policy, account lockout, role-based access for every
+page, and the REST API.
 
 ---
 
