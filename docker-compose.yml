@@ -40,6 +40,8 @@ services:
       APP_DEMO_DATA: "true"
       # Payslip PDFs in a folder inside the container instead of S3
       APP_STORAGE_TYPE: local
+      # Emails written to the log instead of SES
+      APP_EMAIL_TYPE: log
     ports:
       - "8080:8080"
 

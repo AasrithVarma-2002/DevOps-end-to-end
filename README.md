@@ -11,7 +11,7 @@ through a DevOps pipeline: Terraform → Docker → Amazon ECR → Jenkins → K
 | **1** | Users and roles, onboarding, profiles, departments, manager hierarchy, leave (6 types, holidays, half days, two-step approval), offboarding, audit log, notifications | **Built** |
 | **2** | Attendance: check in/out, monthly calendar (present, half day, leave, holiday, absent), team view for managers, HR corrections | **Built** |
 | **3** | Payroll: monthly runs (draft → finalized), salary breakdown, loss of pay, PDF payslips stored in a private S3 bucket via IRSA | **Built** |
-| 4 | Email (SES), reminders, year-end carry-over, scheduled offboarding, reports, monitoring | Planned |
+| **4** | Email notifications (Amazon SES), scheduled reminders (ShedLock, one pod per job), CSV reports | **Built** (monitoring: next) |
 
 ---
 
@@ -90,6 +90,41 @@ below it can.
   `hr-portal-app`, which may only read and write objects in that bucket. Locally and in tests
   the PDFs are written to a folder instead (`app.storage.type=local`).
 - **Database:** `payroll_runs` and `payslips` (Flyway `V4__payroll.sql`).
+
+
+## Stage 4 features: emails, scheduled reminders, reports
+
+- **Emails (Amazon SES):** every in-app notification is also emailed to the person's login
+  address: welcome, leave requested/approved/rejected, payslip ready, the reminders below.
+  Emails are sent only **after** the change is committed (a rolled-back action emails nobody),
+  and an email failure is logged without undoing the action. Addresses ending in `.local`
+  (the demo users, `admin@hrportal.local`) are never emailed. Locally and in tests emails are
+  only logged.
+- **Scheduled reminders** (India time, each one is a notification + email):
+  - weekdays 09:30: managers with leave requests waiting for them, and HR if any wait for HR
+  - weekdays 20:00: people who checked in but haven't checked out
+  - the 5th of each month 10:00: HR, if last month's payroll isn't run or finalized yet
+- **One pod per job:** every pod has the schedule, but **ShedLock** lets only the pod that takes
+  the lock row in the `shedlock` table (Flyway `V5__shedlock.sql`) run it. Lock times use the
+  database clock, so pods with slightly different clocks can't run a job twice.
+- **Reports** (HR → Reports): CSV downloads that open in Excel: monthly attendance, leave
+  balances for a year, and the payroll register (every payslip of a month; each download is
+  audited). Cells that start with `=`, `+`, `-` or `@` are prefixed with `'` so a spreadsheet
+  never runs them as formulas.
+
+### Turning on emails in AWS
+
+1. In `terraform/terraform.tfvars` set `notification_email = "you@example.com"` and run
+   `terraform apply`. It creates the SES identity, the `hr-portal/app-config` secret and lets
+   the app role send **only from that address**.
+2. Click the link in the "Amazon Web Services – Email Address Verification Request" email.
+   Check: `aws sesv2 get-email-identity --region ap-south-1 --email-identity you@example.com --query VerifiedForSendingStatus`
+3. `kubectl apply -f k8s/platform/external-secret.yaml` (adds `APP_EMAIL_FROM`), then
+   `kubectl -n hr-portal rollout restart deployment/hr-portal` so the pods read it.
+
+The account starts in the **SES sandbox**: emails reach only verified addresses, so give your
+test employee the same verified address. Mail sent "from" a Gmail address via SES may land in
+Spam.
 
 ## Run it locally
 

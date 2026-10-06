@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Reports')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-reports')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>Reports</h1>
+            <p class="muted">CSV files that open in Excel or Google Sheets. Everyone employed in the period is included.</p></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <form class="card form" method="get" th:action="@{/hr/reports/attendance.csv}">
+        <h2>Attendance</h2>
+        <p class="muted">Per employee: present days, half days, leave, absences and hours worked.</p>
+        <div class="actions">
+            <label for="att-month" class="sr-only">Month</label>
+            <input id="att-month" type="month" name="month" th:value="${lastMonth}" required>
+            <button type="submit" class="btn primary">Download CSV</button>
+        </div>
+    </form>
+
+    <form class="card form" method="get" th:action="@{/hr/reports/leave.csv}">
+        <h2>Leave balances</h2>
+        <p class="muted">Per employee and leave type: allocated, used, pending and available.</p>
+        <div class="actions">
+            <label for="leave-year" class="sr-only">Year</label>
+            <input id="leave-year" type="number" name="year" min="2000" max="2100" th:value="${thisYear}" required>
+            <button type="submit" class="btn primary">Download CSV</button>
+        </div>
+    </form>
+
+    <form class="card form" method="get" th:action="@{/hr/reports/payroll.csv}">
+        <h2>Payroll register</h2>
+        <p class="muted">Every payslip of the month: earnings, deductions and net pay. Downloads are recorded in the audit log.</p>
+        <div class="actions">
+            <label for="pay-month" class="sr-only">Month</label>
+            <input id="pay-month" type="month" name="month" th:value="${lastMonth}" required>
+            <button type="submit" class="btn primary">Download CSV</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>

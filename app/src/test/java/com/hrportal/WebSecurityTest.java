@@ -134,7 +134,7 @@ class WebSecurityTest {
         expect(employee, 200, "/", "/leave", "/leave/apply", "/profile", "/notifications", "/attendance",
                 "/attendance?month=2026-02", "/payslips");
         expect(employee, 403, "/team", "/team/approvals", "/team/attendance", "/hr/employees", "/hr/audit",
-                "/hr/attendance", "/hr/payroll", "/admin/users");
+                "/hr/attendance", "/hr/payroll", "/hr/reports", "/admin/users");
 
         expect(manager, 200, "/team", "/team/approvals", "/team/attendance");
         expect(manager, 403, "/hr/employees", "/hr/approvals", "/hr/attendance", "/admin/users");
@@ -142,7 +142,8 @@ class WebSecurityTest {
         expect(hr, 200, "/hr/employees", "/hr/employees/new", "/hr/employees/" + employee.getId(),
                 "/hr/employees/" + employee.getId() + "/edit", "/hr/employees/" + employee.getId() + "/offboard",
                 "/hr/departments", "/hr/holidays", "/hr/approvals", "/hr/leave", "/hr/audit", "/team",
-                "/hr/attendance", "/hr/attendance?date=2026-03-02", "/hr/payroll");
+                "/hr/attendance", "/hr/attendance?date=2026-03-02", "/hr/payroll", "/hr/reports",
+                "/hr/reports/attendance.csv?month=2026-02", "/hr/reports/leave.csv?year=2026");
         expect(hr, 403, "/admin/users");
     }
 

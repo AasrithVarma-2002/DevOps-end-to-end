@@ -95,10 +95,14 @@ pipeline {
       steps {
         sh '''
           aws eks update-kubeconfig --name "$EKS_CLUSTER_NAME" --kubeconfig "$KUBECONFIG"
+          # The ALB's address, for links in emails (empty on the very first deploy, before the ALB exists)
+          ALB_HOST=$(kubectl -n "$NAMESPACE" get ingress "$RELEASE" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)
+          BASE_URL=${ALB_HOST:+http://$ALB_HOST}
           helm upgrade --install "$RELEASE" helm/hr-portal --namespace "$NAMESPACE" \
             --set image.repository="$REPO" \
             --set image.tag="$TAG" \
             --set app.documentsBucket="$DOCUMENTS_BUCKET" \
+            --set app.baseUrl="$BASE_URL" \
             --set 'serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn'="$APP_ROLE_ARN" \
             --wait --timeout 10m --atomic
           kubectl -n "$NAMESPACE" get pods -o wide

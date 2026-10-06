@@ -8,6 +8,11 @@ region = "ap-south-1"
 # Created with: ssh-keygen -t ed25519 -f ~/.ssh/hr-portal-jenkins
 jenkins_ssh_public_key_path = "~/.ssh/hr-portal-jenkins.pub"
 
+# Sender of the app's notification emails (Amazon SES). AWS sends a verification link to this
+# address; click it once. While the account is in the SES sandbox, emails only reach verified
+# addresses, so use your own email here and for your test employee. Leave empty for no emails.
+# notification_email = "you@example.com"
+
 # Login for the first Super Admin of the HR Portal (password is generated into Secrets Manager)
 app_admin_email = "admin@hrportal.local"
 

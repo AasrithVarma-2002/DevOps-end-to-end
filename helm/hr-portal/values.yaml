@@ -22,6 +22,8 @@ app:
   javaOpts: "-XX:MaxRAMPercentage=65 -XX:+ExitOnOutOfMemoryError"
   # Region for AWS SDK calls (pods can't read it from instance metadata: IMDS hop limit 1)
   awsRegion: ap-south-1
+  # Public address of the app, used for links in emails (Jenkins sets it from the Ingress). Optional.
+  baseUrl: ""
   # Private S3 bucket for payslip PDFs (terraform output documents_bucket). Required.
   documentsBucket: ""
 

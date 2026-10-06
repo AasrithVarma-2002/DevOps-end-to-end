@@ -75,7 +75,7 @@ resource "aws_iam_role_policy" "external_secrets" {
       Sid      = "ReadHrPortalSecretsOnly"
       Effect   = "Allow"
       Action   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
-      Resource = [aws_secretsmanager_secret.db.arn, aws_secretsmanager_secret.app_admin.arn]
+      Resource = [aws_secretsmanager_secret.db.arn, aws_secretsmanager_secret.app_admin.arn, aws_secretsmanager_secret.app_config.arn]
     }]
   })
 }
@@ -99,6 +99,24 @@ resource "aws_iam_role_policy" "app_documents" {
       Effect   = "Allow"
       Action   = ["s3:PutObject", "s3:GetObject"]
       Resource = "${aws_s3_bucket.documents.arn}/*"
+    }]
+  })
+}
+
+# Email through SES, but only From the configured sender address
+resource "aws_iam_role_policy" "app_email" {
+  count = var.notification_email == "" ? 0 : 1
+
+  name = "send-email"
+  role = aws_iam_role.app.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid       = "SendFromSenderOnly"
+      Effect    = "Allow"
+      Action    = ["ses:SendEmail"]
+      Resource  = "*"
+      Condition = { StringEquals = { "ses:FromAddress" = var.notification_email } }
     }]
   })
 }

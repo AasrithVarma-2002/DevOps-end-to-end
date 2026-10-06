@@ -32,6 +32,16 @@ app:
   time-zone: ${APP_TIME_ZONE:Asia/Kolkata}
   # Sample departments, employees and holidays; demo logins use Password@123
   demo-data: ${APP_DEMO_DATA:true}
+  # Notification emails: logged locally, Amazon SES in AWS (aws profile)
+  email:
+    type: ${APP_EMAIL_TYPE:log}
+    from: ${APP_EMAIL_FROM:}
+    region: ${AWS_REGION:ap-south-1}
+    # optional, e.g. http://hr-portal-alb-123.ap-south-1.elb.amazonaws.com; adds a link to each email
+    base-url: ${APP_BASE_URL:}
+  # Scheduled reminders (only one pod runs each, see ShedLock); false switches them off
+  jobs:
+    enabled: ${APP_JOBS_ENABLED:true}
   # Payslip PDFs: a folder on disk locally, S3 in AWS (see the aws profile below)
   storage:
     type: ${APP_STORAGE_TYPE:local}
@@ -81,6 +91,9 @@ spring:
 
 app:
   demo-data: ${APP_DEMO_DATA:false}
+  # SES with the pod's IRSA role; the sender (APP_EMAIL_FROM) comes from Secrets Manager via ESO
+  email:
+    type: ${APP_EMAIL_TYPE:ses}
   # Private S3 bucket, reached with the pod's IRSA role (terraform/s3.tf, terraform/iam-irsa.tf)
   storage:
     type: ${APP_STORAGE_TYPE:s3}

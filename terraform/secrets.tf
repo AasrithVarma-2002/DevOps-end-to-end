@@ -40,3 +40,18 @@ resource "aws_secretsmanager_secret_version" "app_admin" {
     password = random_password.app_admin.result
   })
 }
+
+# Non-secret app settings, delivered the same way as the secrets (ESO -> env vars), so they
+# come from Terraform without being written into the Helm chart or the Jenkinsfile.
+resource "aws_secretsmanager_secret" "app_config" {
+  name                    = "${local.name}/app-config"
+  description             = "HR Portal settings: notification email sender"
+  recovery_window_in_days = 0
+}
+
+resource "aws_secretsmanager_secret_version" "app_config" {
+  secret_id = aws_secretsmanager_secret.app_config.id
+  secret_string = jsonencode({
+    email_from = var.notification_email
+  })
+}

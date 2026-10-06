@@ -80,6 +80,17 @@ variable "db_multi_az" {
 
 # ---------------------------------------------------------------- app
 
+variable "notification_email" {
+  description = "Sender of the app's emails (Amazon SES). AWS emails it a verification link. Empty = no emails, only logged."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.notification_email == "" || can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", var.notification_email))
+    error_message = "notification_email must be an email address, or empty."
+  }
+}
+
 variable "app_admin_email" {
   description = "Login for the first Super Admin, created when the app starts against an empty database"
   type        = string

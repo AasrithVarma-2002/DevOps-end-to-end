@@ -41,6 +41,15 @@ output "app_role_arn" {
   value       = aws_iam_role.app.arn
 }
 
+output "app_config_secret_name" {
+  value = aws_secretsmanager_secret.app_config.name
+}
+
+output "notification_email" {
+  description = "SES sender. Check it is verified: aws sesv2 get-email-identity --email-identity <it>"
+  value       = var.notification_email
+}
+
 output "documents_bucket" {
   description = "Private S3 bucket for payslip PDFs"
   value       = aws_s3_bucket.documents.bucket

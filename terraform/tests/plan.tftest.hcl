@@ -126,6 +126,10 @@ run "apply_as_iam_user" {
     condition     = jsondecode(aws_iam_role_policy.app_documents.policy).Statement[0].Resource == "arn:aws:s3:::hr-portal-documents-123456789012/*"
     error_message = "the app role may only use objects in the documents bucket"
   }
+  assert {
+    condition     = length(aws_sesv2_email_identity.sender) == 0 && length(aws_iam_role_policy.app_email) == 0
+    error_message = "without notification_email there is no SES identity and no email permission"
+  }
 }
 
 run "root_user_is_rejected" {
@@ -146,3 +150,21 @@ run "root_user_allowed_when_opted_in" {
   }
 }
 
+run "email_sender_is_verified_and_the_only_allowed_from_address" {
+  command = plan
+  variables { notification_email = "hr@example.com" }
+  assert {
+    condition     = aws_sesv2_email_identity.sender[0].email_identity == "hr@example.com"
+    error_message = "SES identity must be the notification email"
+  }
+  assert {
+    condition     = jsondecode(aws_iam_role_policy.app_email[0].policy).Statement[0].Condition.StringEquals["ses:FromAddress"] == "hr@example.com"
+    error_message = "the app may only send From the notification email"
+  }
+}
+
+run "bad_notification_email_is_rejected" {
+  command = plan
+  variables { notification_email = "not-an-email" }
+  expect_failures = [var.notification_email]
+}
