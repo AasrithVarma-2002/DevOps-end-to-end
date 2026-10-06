@@ -71,4 +71,14 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
             order by l.employee.firstName
             """)
     List<LeaveRequest> findTeamApprovedOn(@Param("managerId") Long managerId, @Param("day") LocalDate day);
+
+    /** Approved leave of one employee that touches the date range (for the attendance calendar). */
+    @Query("""
+            select l from LeaveRequest l
+            where l.status = com.hrportal.domain.LeaveStatus.APPROVED
+              and l.employee.id = :employeeId
+              and l.startDate <= :to and l.endDate >= :from
+            """)
+    List<LeaveRequest> findApprovedBetween(@Param("employeeId") Long employeeId, @Param("from") LocalDate from,
+                                           @Param("to") LocalDate to);
 }

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Attendance')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-attendance')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>Attendance</h1>
+            <p class="muted" th:text="${#temporals.format(date, 'EEEE, d MMMM yyyy')}">Day</p></div>
+        <form method="get" th:action="@{/hr/attendance}" class="actions">
+            <label for="date" class="sr-only">Date</label>
+            <input id="date" type="date" name="date" th:value="${date}">
+            <button type="submit" class="btn">Show</button>
+        </form>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Name</th><th>Department</th><th>Status</th><th>Details</th>
+                <th th:if="${canCorrect}">Correct (past days)</th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="5" class="empty">No active employees.</td></tr>
+            <tr th:each="r : ${rows}">
+                <td><strong th:text="${r.employee().fullName}"></strong>
+                    <div class="small muted" th:text="${r.employee().employeeCode}"></div></td>
+                <td th:text="${r.employee().department.name}"></td>
+                <td><span th:replace="~{fragments/layout :: dayStatus(${r.today().status()})}"></span></td>
+                <td class="small">
+                    <span th:text="${r.today().detail()}"></span>
+                    <span class="muted" th:if="${r.today().record() != null and r.today().record().correctedBy != null}"
+                          th:text="' · ' + ${r.today().record().correctedBy} + ': ' + ${r.today().record().note}"></span>
+                </td>
+                <td th:if="${canCorrect}">
+                    <form method="post" th:action="@{/hr/attendance/correct}" class="actions">
+                        <input type="hidden" name="employeeId" th:value="${r.employee().id}">
+                        <input type="hidden" name="date" th:value="${date}">
+                        <label class="sr-only" th:for="'in-' + ${r.employee().id}">Check-in</label>
+                        <input type="time" name="checkIn" th:id="'in-' + ${r.employee().id}" required value="09:00">
+                        <label class="sr-only" th:for="'out-' + ${r.employee().id}">Check-out</label>
+                        <input type="time" name="checkOut" th:id="'out-' + ${r.employee().id}" required value="18:00">
+                        <label class="sr-only" th:for="'note-' + ${r.employee().id}">Reason</label>
+                        <input name="note" th:id="'note-' + ${r.employee().id}" required maxlength="300" placeholder="Reason">
+                        <button type="submit" class="btn small">Save</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

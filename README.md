@@ -9,7 +9,7 @@ through a DevOps pipeline: Terraform → Docker → Amazon ECR → Jenkins → K
 | Stage | Scope | Status |
 |---|---|---|
 | **1** | Users and roles, onboarding, profiles, departments, manager hierarchy, leave (6 types, holidays, half days, two-step approval), offboarding, audit log, notifications | **Built** |
-| 2 | Attendance: clock in/out, late and absence flags, team summaries | Planned |
+| **2** | Attendance: check in/out, monthly calendar (present, half day, leave, holiday, absent), team view for managers, HR corrections | **Built** |
 | 3 | Payroll and PDF payslips, documents on S3, final settlement, relieving letters | Planned |
 | 4 | Email (SES), reminders, year-end carry-over, scheduled offboarding, reports, monitoring | Planned |
 
@@ -49,6 +49,21 @@ below it can.
 - **Health probes:** `/actuator/health/liveness` and `/actuator/health/readiness`.
 
 ---
+
+
+## Stage 2 features: attendance
+
+- **Check in / check out:** once a day each, from the Attendance page or the API. Employees who
+  have left can't check in.
+- **Monthly calendar:** every day is worked out from attendance records, approved leave, public
+  holidays and weekends: Present, Half day (under 4 hours), Checked in, No check-out, On leave,
+  Holiday, Weekend, Absent (a past working day with nothing recorded). Days before joining or
+  after leaving are never absent. Totals: present, half days, leave, absent, hours worked.
+- **Managers:** Team attendance shows each direct report's status today and this month's totals.
+- **HR:** everyone's status for any day, and corrections for past days (forgotten check-out,
+  badge reader down). A correction needs a reason and is shown on the calendar and audited.
+- **Database:** one new table, `attendance_records` (Flyway `V3__attendance.sql`), one row per
+  employee per day.
 
 ## Run it locally
 

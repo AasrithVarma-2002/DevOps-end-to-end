@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My attendance')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('attendance')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>My attendance</h1>
+            <p class="muted" th:text="${#temporals.format(todayDate, 'EEEE, d MMMM yyyy')}">Today</p></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <!-- today -->
+    <section class="card">
+        <h2>Today</h2>
+        <th:block th:if="${today == null}">
+            <p class="muted">You haven't checked in yet.</p>
+            <form method="post" th:action="@{/attendance/check-in}">
+                <button type="submit" class="btn primary">Check in</button>
+            </form>
+        </th:block>
+        <th:block th:if="${today != null and today.open}">
+            <p>Checked in at <strong th:text="${#temporals.format(today.checkIn, 'HH:mm')}">09:05</strong>.</p>
+            <form method="post" th:action="@{/attendance/check-out}">
+                <button type="submit" class="btn primary">Check out</button>
+            </form>
+        </th:block>
+        <p th:if="${today != null and !today.open}">
+            <span th:text="${#temporals.format(today.checkIn, 'HH:mm')} + '–' + ${#temporals.format(today.checkOut, 'HH:mm')}">09:05–18:10</span>
+            · <strong th:text="${today.workedLabel}">9h 5m</strong> worked. You're done for today.
+        </p>
+    </section>
+
+    <!-- month -->
+    <section>
+        <div class="page-head">
+            <h2 th:text="${#temporals.format(view.month().atDay(1), 'MMMM yyyy')}">March 2026</h2>
+            <div class="tabs">
+                <a th:href="@{/attendance(month=${prev})}">&larr; Previous</a>
+                <a th:unless="${isCurrentMonth}" th:href="@{/attendance}">This month</a>
+                <a th:unless="${isCurrentMonth}" th:href="@{/attendance(month=${next})}">Next &rarr;</a>
+            </div>
+        </div>
+        <div th:replace="~{fragments/layout :: attendanceSummary(${view.summary()})}"></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Date</th><th>Status</th><th>Details</th></tr></thead>
+                <tbody>
+                <tr th:each="d : ${view.days()}" th:classappend="${d.date().equals(todayDate)} ? 'today'">
+                    <td class="num" th:text="${#temporals.format(d.date(), 'EEE d MMM')}">Mon 2 Mar</td>
+                    <td><span th:replace="~{fragments/layout :: dayStatus(${d.status()})}"></span></td>
+                    <td class="small">
+                        <span th:text="${d.detail()}"></span>
+                        <span class="muted" th:if="${d.record() != null and d.record().correctedBy != null}"
+                              th:text="' · corrected by HR: ' + ${d.record().note}"></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -131,15 +131,18 @@ class WebSecurityTest {
 
     @Test
     void eachRoleSeesOnlyItsOwnAreas() throws Exception {
-        expect(employee, 200, "/", "/leave", "/leave/apply", "/profile", "/notifications");
-        expect(employee, 403, "/team", "/team/approvals", "/hr/employees", "/hr/audit", "/admin/users");
+        expect(employee, 200, "/", "/leave", "/leave/apply", "/profile", "/notifications", "/attendance",
+                "/attendance?month=2026-02");
+        expect(employee, 403, "/team", "/team/approvals", "/team/attendance", "/hr/employees", "/hr/audit",
+                "/hr/attendance", "/admin/users");
 
-        expect(manager, 200, "/team", "/team/approvals");
-        expect(manager, 403, "/hr/employees", "/hr/approvals", "/admin/users");
+        expect(manager, 200, "/team", "/team/approvals", "/team/attendance");
+        expect(manager, 403, "/hr/employees", "/hr/approvals", "/hr/attendance", "/admin/users");
 
         expect(hr, 200, "/hr/employees", "/hr/employees/new", "/hr/employees/" + employee.getId(),
                 "/hr/employees/" + employee.getId() + "/edit", "/hr/employees/" + employee.getId() + "/offboard",
-                "/hr/departments", "/hr/holidays", "/hr/approvals", "/hr/leave", "/hr/audit", "/team");
+                "/hr/departments", "/hr/holidays", "/hr/approvals", "/hr/leave", "/hr/audit", "/team",
+                "/hr/attendance", "/hr/attendance?date=2026-03-02");
         expect(hr, 403, "/admin/users");
     }
 
@@ -158,7 +161,35 @@ class WebSecurityTest {
                 .andExpect(status().isOk()).andExpect(content().string(containsString(employee.getFullName())));
     }
 
+    @Test
+    void employeeChecksInAndOutFromTheAttendancePage() throws Exception {
+        var auth = httpBasic(user(employee), TestData.PASSWORD);
+        mvc.perform(post("/attendance/check-in").with(auth).with(csrf())).andExpect(redirectedUrl("/attendance"));
+        mvc.perform(get("/attendance").with(auth)).andExpect(status().isOk())
+                .andExpect(content().string(containsString("Check out")));
+        mvc.perform(post("/attendance/check-out").with(auth).with(csrf())).andExpect(redirectedUrl("/attendance"));
+        mvc.perform(get("/attendance").with(auth)).andExpect(status().isOk())
+                .andExpect(content().string(containsString("done for today")));
+        mvc.perform(get("/team/attendance").with(httpBasic(user(manager), TestData.PASSWORD)))
+                .andExpect(status().isOk()).andExpect(content().string(containsString(employee.getFullName())));
+    }
+
     // ------------------------------------------------------------------ REST API
+
+    @Test
+    void apiChecksInAndShowsTheMonth() throws Exception {
+        var auth = httpBasic(user(employee), TestData.PASSWORD);
+        mvc.perform(post("/api/attendance/check-in").with(auth))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.workDate").value("2026-03-04"));
+        mvc.perform(post("/api/attendance/check-in").with(auth)).andExpect(status().isUnprocessableEntity());
+        mvc.perform(get("/api/attendance").with(auth))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.days.length()").value(31))
+                .andExpect(jsonPath("$.days[3].status").value("WORKING"))
+                .andExpect(jsonPath("$.days[0].status").value("WEEKEND"));
+        mvc.perform(post("/api/hr/attendance/corrections").with(auth).contentType(MediaType.APPLICATION_JSON)
+                .content("{}")).andExpect(status().isForbidden());
+    }
 
     @Test
     void apiReturnsMyProfileAndBalances() throws Exception {

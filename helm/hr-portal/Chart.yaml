@@ -4,4 +4,4 @@ description: HR Portal Pro (Spring Boot) on Amazon EKS behind an Application Loa
 type: application
 version: 0.1.0
 # The image tag is set per deploy (git commit SHA); appVersion is only informational
-appVersion: "stage-1"
+appVersion: "stage-2"

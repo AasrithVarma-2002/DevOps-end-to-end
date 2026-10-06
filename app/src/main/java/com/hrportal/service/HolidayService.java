@@ -29,6 +29,11 @@ public class HolidayService {
         return holidays.findByDateBetweenOrderByDateAsc(LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31));
     }
 
+    @Transactional(readOnly = true)
+    public List<Holiday> forRange(LocalDate from, LocalDate to) {
+        return holidays.findByDateBetweenOrderByDateAsc(from, to);
+    }
+
     public Holiday add(LocalDate date, String name) {
         if (date == null || name == null || name.isBlank()) {
             throw new BusinessRuleException("Holiday date and name are required");

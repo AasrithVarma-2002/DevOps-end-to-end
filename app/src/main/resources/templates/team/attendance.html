@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Team attendance')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('team-attendance')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>Team attendance</h1>
+            <p class="muted" th:text="'Today, and totals for ' + ${#temporals.format(month.atDay(1), 'MMMM yyyy')}">Today</p></div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Name</th><th>Today</th><th class="num">Present</th><th class="num">Half days</th>
+                <th class="num">On leave</th><th class="num">Absent</th><th class="num">Hours</th></tr></thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(members)}"><td colspan="7" class="empty">Nobody reports to you yet.</td></tr>
+            <tr th:each="m : ${members}">
+                <td><strong th:text="${m.employee().fullName}"></strong>
+                    <div class="small muted" th:text="${m.employee().jobTitle}"></div></td>
+                <td><span th:replace="~{fragments/layout :: dayStatus(${m.today().status()})}"></span>
+                    <div class="small muted" th:text="${m.today().detail()}"></div></td>
+                <td class="num" th:text="${m.month().present()}"></td>
+                <td class="num" th:text="${m.month().halfDays()}"></td>
+                <td class="num" th:text="${m.month().onLeave()}"></td>
+                <td class="num" th:text="${m.month().absent()}"></td>
+                <td class="num" th:text="${m.month().hoursLabel}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

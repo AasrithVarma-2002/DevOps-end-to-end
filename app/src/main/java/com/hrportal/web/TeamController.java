@@ -1,6 +1,7 @@
 package com.hrportal.web;
 
 import com.hrportal.security.CurrentUser;
+import com.hrportal.service.AttendanceService;
 import com.hrportal.service.EmployeeService;
 import com.hrportal.service.LeaveService;
 import java.time.Clock;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/** Manager screens: direct reports and leave approvals. */
+/** Manager screens: direct reports, their attendance and leave approvals. */
 @Controller
 @RequestMapping("/team")
 public class TeamController {
@@ -22,12 +23,15 @@ public class TeamController {
     private final CurrentUser currentUser;
     private final EmployeeService employees;
     private final LeaveService leave;
+    private final AttendanceService attendance;
     private final Clock clock;
 
-    public TeamController(CurrentUser currentUser, EmployeeService employees, LeaveService leave, Clock clock) {
+    public TeamController(CurrentUser currentUser, EmployeeService employees, LeaveService leave,
+                          AttendanceService attendance, Clock clock) {
         this.currentUser = currentUser;
         this.employees = employees;
         this.leave = leave;
+        this.attendance = attendance;
         this.clock = clock;
     }
 
@@ -41,6 +45,14 @@ public class TeamController {
                 .collect(java.util.stream.Collectors.toMap(e -> e.getId(), e -> leave.balances(e, year))));
         model.addAttribute("outToday", leave.teamOutToday(me.getId()));
         return "team/team";
+    }
+
+    @GetMapping("/attendance")
+    public String attendance(Model model) {
+        var me = currentUser.requireEmployee();
+        model.addAttribute("members", attendance.team(me.getId()));
+        model.addAttribute("month", java.time.YearMonth.now(clock));
+        return "team/attendance";
     }
 
     @GetMapping("/approvals")

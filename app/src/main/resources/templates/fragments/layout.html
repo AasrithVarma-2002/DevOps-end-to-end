@@ -14,9 +14,11 @@
         <a th:href="@{/}" th:classappend="${active == 'dashboard'} ? 'active'">Dashboard</a>
         <th:block th:if="${me.hasEmployeeRecord()}">
             <a th:href="@{/leave}" th:classappend="${active == 'leave'} ? 'active'">My leave</a>
+            <a th:href="@{/attendance}" th:classappend="${active == 'attendance'} ? 'active'">Attendance</a>
         </th:block>
         <th:block th:if="${me.isManager() and me.hasEmployeeRecord()}">
             <a th:href="@{/team}" th:classappend="${active == 'team'} ? 'active'">My team</a>
+            <a th:href="@{/team/attendance}" th:classappend="${active == 'team-attendance'} ? 'active'">Team attendance</a>
             <a th:href="@{/team/approvals}" th:classappend="${active == 'team-approvals'} ? 'active'">Team approvals</a>
         </th:block>
         <th:block th:if="${me.isHr()}">
@@ -24,6 +26,7 @@
             <a th:href="@{/hr/employees}" th:classappend="${active == 'hr-employees'} ? 'active'">Employees</a>
             <a th:href="@{/hr/approvals}" th:classappend="${active == 'hr-approvals'} ? 'active'">HR approvals</a>
             <a th:href="@{/hr/leave}" th:classappend="${active == 'hr-leave'} ? 'active'">All leave</a>
+            <a th:href="@{/hr/attendance}" th:classappend="${active == 'hr-attendance'} ? 'active'">Attendance</a>
             <a th:href="@{/hr/departments}" th:classappend="${active == 'hr-departments'} ? 'active'">Departments</a>
             <a th:href="@{/hr/holidays}" th:classappend="${active == 'hr-holidays'} ? 'active'">Holidays</a>
             <a th:href="@{/hr/audit}" th:classappend="${active == 'hr-audit'} ? 'active'">Audit log</a>
@@ -60,6 +63,19 @@
 <!-- status pill for a leave request -->
 <span th:fragment="leaveStatus(status)" class="pill" th:classappend="${'st-' + #strings.toLowerCase(status.name())}"
       th:text="${status.label}">Status</span>
+
+<!-- status pill for an attendance day -->
+<span th:fragment="dayStatus(status)" class="pill" th:classappend="${'day-' + #strings.toLowerCase(status.name())}"
+      th:text="${status.label}">Present</span>
+
+<!-- month totals; AttendanceService.Summary -->
+<div th:fragment="attendanceSummary(s)" class="balances">
+    <div class="balance"><div class="type">Present</div><div class="left num" th:text="${s.present()}">0</div></div>
+    <div class="balance"><div class="type">Half days</div><div class="left num" th:text="${s.halfDays()}">0</div></div>
+    <div class="balance"><div class="type">On leave</div><div class="left num" th:text="${s.onLeave()}">0</div></div>
+    <div class="balance"><div class="type">Absent</div><div class="left num" th:text="${s.absent()}">0</div></div>
+    <div class="balance"><div class="type">Hours worked</div><div class="left num" th:text="${s.hoursLabel}">0h 0m</div></div>
+</div>
 
 <!-- "3 days" / "0.5 day" -->
 <span th:fragment="days(value)" class="num"
