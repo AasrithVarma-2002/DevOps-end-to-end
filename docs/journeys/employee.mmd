@@ -1,0 +1,53 @@
+---
+title: HR Portal Pro · Employee journey
+---
+flowchart TD
+  A(["Employee signs in"]):::start --> S{"Account status"}:::decide
+  S -- "5 wrong passwords" --> LK["Locked: ask the Super Admin"]:::bad
+  S -- "left the company" --> DIS["Disabled: sign-in refused"]:::bad
+  S -- "active" --> F{"First sign-in?"}:::decide
+  F -- "yes" --> F1["Change temporary password<br/>8+ chars, letters and numbers"]:::step --> F2["Complete profile<br/>phone, address, emergency contact"]:::step --> D
+  F -- "no" --> D["Dashboard<br/>leave balances, upcoming leave"]:::step
+
+  D --> LV["Leave"]:::area
+  D --> AT["Attendance"]:::area
+  D --> PS["Payslips"]:::area
+  D --> DO["Documents"]:::area
+  D --> NT["Notifications bell<br/>mark all read"]:::area
+  D --> PR["Profile: edit contact details<br/>job details read-only"]:::area
+
+  LV --> L1["Apply: type, dates, half day, reason"]:::step --> L2{"Valid?"}:::decide
+  L2 -- "weekends only, overlap, no balance,<br/>crosses year end, past date" --> L3["Refused with the reason"]:::bad
+  L2 -- "yes" --> L4["Waiting for manager<br/>manager emailed"]:::mail
+  L4 --> L5{"Manager decides"}:::decide
+  L5 -- "reject" --> L6["Rejected + comment"]:::bad
+  L5 -- "approve, 5 days or less" --> L7["Approved"]:::good
+  L5 -- "approve, over 5 days" --> L8["Waiting for HR"]:::step --> L9{"HR decides"}:::decide
+  L9 -- "approve" --> L7
+  L9 -- "reject" --> L6
+  L6 & L7 --> LM["Email to employee"]:::mail
+  L7 --> LC["Cancel before it starts<br/>days come back"]:::step
+
+  AT --> C1["Check in, once a day"]:::step --> C2{"Checked out?"}:::decide
+  C2 -- "yes, 4h or more" --> C3["Present"]:::good
+  C2 -- "yes, under 4h" --> C4["Half day"]:::step
+  C2 -- "no" --> C5["20:00 reminder email"]:::mail --> C6["Missed check-out<br/>HR corrects it"]:::bad
+  AT --> C7["Month calendar<br/>present, leave, holiday, absent"]:::step
+
+  PS --> P1{"Has HR finalized the month?"}:::decide
+  P1 -- "no" --> P2["Nothing yet: drafts are hidden"]:::step
+  P1 -- "yes" --> P3["Download own payslip PDF<br/>others' payslips: 403"]:::good
+
+  DO --> U1["Upload: choose document type + file"]:::step --> U2{"PDF, PNG or JPEG and 5 MB or less?"}:::decide
+  U2 -- "no" --> U3["Refused"]:::bad
+  U2 -- "yes" --> U4["Waiting for HR<br/>HR emailed"]:::mail --> U5{"HR decides"}:::decide
+  U5 -- "verify" --> U6["Verified: checklist +1"]:::good
+  U5 -- "reject + reason" --> U7["Rejected: upload again"]:::bad --> U1
+  DO --> U8["Letters from HR<br/>open via 5-minute S3 link"]:::step
+  classDef start fill:#1f4e79,stroke:#1f4e79,color:#ffffff,font-weight:bold
+  classDef step fill:#ffffff,stroke:#9aa7b4,color:#18222c
+  classDef area fill:#e5eef6,stroke:#1f4e79,color:#12324f,font-weight:bold
+  classDef decide fill:#fff6e6,stroke:#c98a1b,color:#5a3a00
+  classDef good fill:#e6f4ea,stroke:#2b8a3e,color:#14532d
+  classDef bad fill:#fdecec,stroke:#c92a2a,color:#7f1d1d
+  classDef mail fill:#fde8f3,stroke:#c2255c,color:#7a1340

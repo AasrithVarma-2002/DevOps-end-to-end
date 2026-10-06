@@ -1,0 +1,36 @@
+---
+title: HR Portal Pro · Manager journey
+---
+flowchart TD
+  A(["Manager signs in"]):::start --> F{"First sign-in?"}:::decide
+  F -- "yes" --> F1["Change temporary password"]:::step --> F2["Complete profile"]:::step --> D
+  F -- "no" --> D["Dashboard<br/>requests waiting for you, team size, team out today"]:::step
+
+  D --> T["My team<br/>direct reports, leave left, out today"]:::area
+  D --> AP["Team approvals"]:::area
+  D --> TA["Team attendance<br/>today's status + month summary"]:::area
+  D --> OWN["Own self-service<br/>see the Employee flow"]:::area
+
+  AP --> Q["Request from a direct report<br/>manager notified + emailed when it was made"]:::mail
+  Q --> DC{"Decision"}:::decide
+  DC -- "approve" --> LEN{"More than 5 working days?"}:::decide
+  LEN -- "no" --> OK["Approved: final<br/>days deducted"]:::good --> EM["Employee emailed"]:::mail
+  LEN -- "yes" --> HR["Waiting for HR<br/>HR emailed for final approval"]:::step --> EM
+  DC -- "reject + comment" --> RJ["Rejected"]:::bad --> EM
+  DC -- "not my report, or my own" --> NO["Not allowed"]:::bad
+
+  AP -.-> REM["Weekdays 09:30: reminder email<br/>if requests are still waiting"]:::mail
+
+  OWN --> OL["Apply for own leave"]:::step --> OLH{"Has an active manager?"}:::decide
+  OLH -- "no" --> OLR["Goes straight to HR"]:::step
+  OLH -- "yes" --> OLM["Goes to own manager"]:::step
+
+  T --> PRIV{"Open a report's payslip or document?"}:::decide
+  PRIV --> PD["403: managers can't see team pay or documents"]:::bad
+  classDef start fill:#1f4e79,stroke:#1f4e79,color:#ffffff,font-weight:bold
+  classDef step fill:#ffffff,stroke:#9aa7b4,color:#18222c
+  classDef area fill:#e5eef6,stroke:#1f4e79,color:#12324f,font-weight:bold
+  classDef decide fill:#fff6e6,stroke:#c98a1b,color:#5a3a00
+  classDef good fill:#e6f4ea,stroke:#2b8a3e,color:#14532d
+  classDef bad fill:#fdecec,stroke:#c92a2a,color:#7f1d1d
+  classDef mail fill:#fde8f3,stroke:#c2255c,color:#7a1340

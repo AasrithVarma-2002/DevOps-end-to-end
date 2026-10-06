@@ -1,0 +1,61 @@
+---
+title: HR Portal Pro · HR Admin journey
+---
+flowchart TD
+  A(["HR Admin signs in"]):::start --> F{"First sign-in?"}:::decide
+  F -- "yes" --> F1["Change temporary password"]:::step --> F2["Complete profile<br/>phone, address, emergency contact"]:::step --> D
+  F -- "no" --> D["Dashboard<br/>HR approvals waiting, active employees, out today"]:::step
+
+  D --> PE["People"]:::area
+  D --> LV["Leave"]:::area
+  D --> AT["Attendance"]:::area
+  D --> PY["Payroll"]:::area
+  D --> DO["Documents"]:::area
+  D --> RE["Reports and audit"]:::area
+
+  PE --> P1["Onboard employee<br/>role up to Manager"]:::step --> P1M["Temporary password shown<br/>welcome email, manager emailed"]:::mail
+  PE --> P2["Search directory<br/>name, code, department, status"]:::step
+  PE --> P3["Edit job: title, manager, salary<br/>audit shows old → new"]:::step
+  PE --> P4["Offboard: last working day + reason"]:::step --> P4R["Login disabled, future leave cancelled<br/>team requests moved to HR"]:::good
+
+  LV --> L1["HR approvals queue<br/>over 5 days, or no manager"]:::step
+  L1 --> L2{"Decision"}:::decide
+  L2 -- "approve" --> L3{"Balance still enough?"}:::decide
+  L3 -- "yes" --> L4["Approved, days deducted"]:::good --> LM["Employee emailed"]:::mail
+  L3 -- "no" --> L5["Refused"]:::bad
+  L2 -- "reject + comment" --> L6["Rejected"]:::bad --> LM
+  L2 -- "own request" --> L7["Not allowed"]:::bad
+  LV --> L8["All leave: filter, cancel approved leave<br/>days refunded, employee emailed"]:::step
+
+  AT --> A1["Everyone's status for a day"]:::step
+  AT --> A2{"Correct a day: past day, out after in, reason given?"}:::decide
+  A2 -- "yes" --> A3["Record fixed, audited"]:::good
+  A2 -- "no" --> A4["Refused"]:::bad
+
+  PY --> Y1{"Run month: future or already run?"}:::decide
+  Y1 -- "yes" --> Y2["Refused"]:::bad
+  Y1 -- "no" --> Y3["DRAFT run<br/>pro-rated pay, loss of pay, PF, PT"]:::step
+  Y3 --> Y4["Review payslips, preview PDFs"]:::step
+  Y4 -- "salary or leave changed" --> Y5["Recalculate"]:::step --> Y3
+  Y4 -- "all correct" --> Y6["FINALIZE: run locked"]:::good
+  Y6 --> Y7["PDFs stored in S3<br/>payslips/yyyy-MM/"]:::good
+  Y6 --> Y8["Every employee emailed:<br/>payslip ready"]:::mail
+
+  DO --> D1["Verification queue"]:::step --> D2{"Decision"}:::decide
+  D2 -- "verify" --> D3["Verified, checklist +1"]:::good --> DM["Employee emailed"]:::mail
+  D2 -- "reject + reason" --> D4["Rejected, employee re-uploads"]:::bad --> DM
+  D2 -- "own document" --> D5["Another HR admin must verify"]:::bad
+  DO --> D6["Onboarding checklist<br/>who is missing what"]:::step
+  DO --> D7["Share a letter<br/>offer, appraisal, experience"]:::step --> DM
+
+  RE --> R1["CSV: attendance, leave balances,<br/>payroll register"]:::step
+  RE --> R2["Audit log: who did what, when"]:::step
+  RE --> R3["Departments and holidays"]:::step
+  D -.-> R4["Automatic: 09:30 leave reminder,<br/>5th of month payroll reminder"]:::mail
+  classDef start fill:#1f4e79,stroke:#1f4e79,color:#ffffff,font-weight:bold
+  classDef step fill:#ffffff,stroke:#9aa7b4,color:#18222c
+  classDef area fill:#e5eef6,stroke:#1f4e79,color:#12324f,font-weight:bold
+  classDef decide fill:#fff6e6,stroke:#c98a1b,color:#5a3a00
+  classDef good fill:#e6f4ea,stroke:#2b8a3e,color:#14532d
+  classDef bad fill:#fdecec,stroke:#c92a2a,color:#7f1d1d
+  classDef mail fill:#fde8f3,stroke:#c2255c,color:#7a1340
