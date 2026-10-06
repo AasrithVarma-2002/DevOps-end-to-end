@@ -68,7 +68,12 @@ pipeline {
       when { environment name: 'IMAGE_EXISTS', value: 'no' }
       steps {
         // Report HIGH/CRITICAL vulnerabilities. Change --exit-code to 1 to fail the build on them.
-        sh 'trivy image --no-progress --severity HIGH,CRITICAL --ignore-unfixed --exit-code 0 "$IMAGE"'
+        // TMPDIR on disk: /tmp on Amazon Linux 2023 is in RAM and too small for Trivy's Java DB download.
+        sh '''
+          mkdir -p "$WORKSPACE/.trivy-tmp"
+          TMPDIR="$WORKSPACE/.trivy-tmp" trivy image --no-progress --severity HIGH,CRITICAL --ignore-unfixed --exit-code 0 "$IMAGE"
+          rm -rf "$WORKSPACE/.trivy-tmp"
+        '''
       }
     }
 
