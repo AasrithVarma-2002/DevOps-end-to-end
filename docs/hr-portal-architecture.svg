@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1185" viewBox="0 0 1800 1185" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="a-user" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1f6feb"/></marker><marker id="a-ci" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#d9480f"/></marker><marker id="a-data" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2b8a3e"/></marker><marker id="a-mgmt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6b7280"/></marker></defs>
+<rect x="0" y="0" width="1800" height="1185" rx="0" fill="#ffffff" stroke="#ffffff" stroke-width="0"/>
+<text x="20" y="38" font-size="26" font-weight="bold" fill="#111827" text-anchor="start">HR Portal Pro: AWS architecture</text>
+<text x="20" y="62" font-size="13.5" font-weight="normal" fill="#4b5563" text-anchor="start">Java 21 Spring Boot on Amazon EKS · infrastructure as code with Terraform · CI/CD with Jenkins and Helm · region ap-south-1 (Mumbai)</text>
+<rect x="260" y="85" width="1525" height="1075" rx="10" fill="#fbfcfd" stroke="#232F3E" stroke-width="2"/>
+<text x="1770" y="106" font-size="14" font-weight="bold" fill="#232F3E" text-anchor="end">AWS Cloud · ap-south-1 (Mumbai)</text>
+<rect x="290" y="125" width="1075" height="1005" rx="10" fill="#fdfbff" stroke="#8C4FFF" stroke-width="2"/>
+<rect x="305" y="160" width="1045" height="215" rx="8" fill="#eef7ea" stroke="#7AA116" stroke-width="1.3"/>
+<rect x="305" y="395" width="1045" height="485" rx="8" fill="#eaf4fa" stroke="#147EBA" stroke-width="1.3"/>
+<rect x="305" y="900" width="1045" height="215" rx="8" fill="#f6effa" stroke="#a24bc0" stroke-width="1.3"/>
+<rect x="380" y="215" width="220" height="105" rx="8" fill="#ffffff" stroke="#8C4FFF" stroke-width="1.6"/>
+<rect x="380" y="215" width="6" height="105" rx="2" fill="#8C4FFF"/>
+<text x="394" y="235" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Application Load Balancer</text>
+<text x="394" y="253" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">internet-facing · HTTP :80</text>
+<text x="394" y="269" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">health check: /readiness</text>
+<text x="394" y="285" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">created by LB Controller</text>
+<rect x="650" y="200" width="310" height="155" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="650" y="200" width="6" height="155" rx="2" fill="#ED7100"/>
+<text x="664" y="220" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Jenkins (EC2 t3.medium)</text>
+<text x="664" y="238" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">pipeline: unit tests → docker build</text>
+<text x="664" y="254" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">→ Trivy scan → push → helm deploy</text>
+<text x="664" y="270" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Docker · Trivy · Helm · kubectl · AWS CLI</text>
+<text x="664" y="286" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">IAM role: push to ECR, deploy to EKS</text>
+<text x="664" y="302" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">SSH from admin CIDR + Session Manager</text>
+<rect x="1010" y="260" width="190" height="80" rx="8" fill="#ffffff" stroke="#8C4FFF" stroke-width="1.6"/>
+<rect x="1010" y="260" width="6" height="80" rx="2" fill="#8C4FFF"/>
+<text x="1024" y="280" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">NAT Gateway</text>
+<text x="1024" y="298" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">outbound internet only</text>
+<text x="1024" y="314" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">(one, to save cost)</text>
+<rect x="268" y="245" width="44" height="55" rx="6" fill="#ffffff" stroke="#8C4FFF" stroke-width="1.6"/>
+<text x="290" y="277" font-size="12" font-weight="bold" fill="#6b3fd4" text-anchor="middle">IGW</text>
+<rect x="320" y="430" width="860" height="435" rx="8" fill="#fff8f0" stroke="#ED7100" stroke-width="1.8"/>
+<rect x="340" y="470" width="270" height="140" rx="6" fill="#ffffff" stroke="#c9a37a" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="355" y="500" width="240" height="95" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="355" y="500" width="6" height="95" rx="2" fill="#ED7100"/>
+<text x="369" y="520" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">AWS Load Balancer Controller</text>
+<text x="369" y="538" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">turns the Ingress into the ALB</text>
+<text x="369" y="554" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">IRSA role</text>
+<rect x="340" y="630" width="270" height="215" rx="6" fill="#ffffff" stroke="#c9a37a" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="350" y="648" font-size="11.5" font-weight="bold" fill="#8a5a2b" text-anchor="start">external-secrets</text>
+<rect x="355" y="660" width="240" height="100" rx="8" fill="#ffffff" stroke="#DD344C" stroke-width="1.6"/>
+<rect x="355" y="660" width="6" height="100" rx="2" fill="#DD344C"/>
+<text x="369" y="680" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">External Secrets Operator</text>
+<text x="369" y="698" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">reads hr-portal/* from</text>
+<text x="369" y="714" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Secrets Manager (IRSA role)</text>
+<text x="369" y="730" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">→ writes a Kubernetes Secret</text>
+<text x="360" y="790" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">No password is stored in Git,</text>
+<text x="360" y="806" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">in the image or in Helm values.</text>
+<rect x="630" y="470" width="535" height="375" rx="6" fill="#ffffff" stroke="#c9a37a" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="650" y="500" width="200" height="55" rx="8" fill="#ffffff" stroke="#8C4FFF" stroke-width="1.6"/>
+<rect x="650" y="500" width="6" height="55" rx="2" fill="#8C4FFF"/>
+<text x="664" y="520" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Ingress (class alb)</text>
+<rect x="650" y="575" width="200" height="55" rx="8" fill="#ffffff" stroke="#8C4FFF" stroke-width="1.6"/>
+<rect x="650" y="575" width="6" height="55" rx="2" fill="#8C4FFF"/>
+<text x="664" y="595" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Service :80 → 8080</text>
+<rect x="650" y="650" width="200" height="70" rx="8" fill="#ffffff" stroke="#DD344C" stroke-width="1.6"/>
+<rect x="650" y="650" width="6" height="70" rx="2" fill="#DD344C"/>
+<text x="664" y="670" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Secret hr-portal-secrets</text>
+<text x="664" y="688" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">DB_*, APP_* env vars</text>
+<rect x="650" y="740" width="200" height="90" rx="8" fill="#ffffff" stroke="#DD344C" stroke-width="1.6"/>
+<rect x="650" y="740" width="6" height="90" rx="2" fill="#DD344C"/>
+<text x="664" y="760" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">ServiceAccount hr-portal</text>
+<text x="664" y="778" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">annotated with role ARN</text>
+<text x="664" y="794" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">→ IAM role hr-portal-app</text>
+<text x="664" y="810" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">(IRSA: S3 + SES only)</text>
+<rect x="880" y="500" width="265" height="100" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="880" y="500" width="6" height="100" rx="2" fill="#ED7100"/>
+<text x="894" y="520" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Pod: hr-portal (replica 1)</text>
+<text x="894" y="538" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Spring Boot 3 · Java 21</text>
+<text x="894" y="554" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Thymeleaf UI + REST API</text>
+<text x="894" y="570" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Flyway migrations · ShedLock jobs</text>
+<rect x="880" y="615" width="265" height="100" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="880" y="615" width="6" height="100" rx="2" fill="#ED7100"/>
+<text x="894" y="635" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Pod: hr-portal (replica 2)</text>
+<text x="894" y="653" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">same image, tag = git commit</text>
+<text x="894" y="669" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">probes: /actuator/health/*</text>
+<text x="894" y="685" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">PodDisruptionBudget · rolling update</text>
+<text x="890" y="760" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Both pods run the same schedule;</text>
+<text x="890" y="776" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">ShedLock (row in MySQL) lets only</text>
+<text x="890" y="792" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">one pod run each reminder job.</text>
+<rect x="1200" y="470" width="140" height="100" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="1200" y="470" width="6" height="100" rx="2" fill="#ED7100"/>
+<text x="1214" y="490" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Bastion EC2</text>
+<text x="1214" y="508" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">t3.micro</text>
+<text x="1214" y="524" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Session Manager</text>
+<text x="1214" y="540" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">only, no SSH</text>
+<rect x="860" y="950" width="320" height="110" rx="8" fill="#ffffff" stroke="#C925D1" stroke-width="1.6"/>
+<rect x="860" y="950" width="6" height="110" rx="2" fill="#C925D1"/>
+<text x="874" y="970" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Amazon RDS for MySQL 8.4</text>
+<text x="874" y="988" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">db.t4g.micro · 20 GB, autoscaling to 50</text>
+<text x="874" y="1004" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">encrypted at rest · TLS required</text>
+<text x="874" y="1020" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">automated backups · not public</text>
+<rect x="1400" y="160" width="370" height="70" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="1400" y="160" width="6" height="70" rx="2" fill="#ED7100"/>
+<text x="1414" y="180" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Amazon ECR</text>
+<text x="1414" y="198" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">repository hr-portal · immutable tags (git SHA)</text>
+<rect x="1400" y="245" width="370" height="75" rx="8" fill="#ffffff" stroke="#DD344C" stroke-width="1.6"/>
+<rect x="1400" y="245" width="6" height="75" rx="2" fill="#DD344C"/>
+<text x="1414" y="265" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">AWS Secrets Manager</text>
+<text x="1414" y="283" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">hr-portal/db (RDS password)</text>
+<text x="1414" y="299" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">hr-portal/app-config (admin login, email sender)</text>
+<rect x="1400" y="340" width="370" height="95" rx="8" fill="#ffffff" stroke="#DD344C" stroke-width="1.6"/>
+<rect x="1400" y="340" width="6" height="95" rx="2" fill="#DD344C"/>
+<text x="1414" y="360" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">AWS IAM + STS</text>
+<text x="1414" y="378" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">EKS OIDC provider</text>
+<text x="1414" y="394" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">IRSA roles: hr-portal-app, ESO, LB Controller</text>
+<text x="1414" y="410" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">short-lived credentials, no access keys</text>
+<rect x="1400" y="450" width="370" height="70" rx="8" fill="#ffffff" stroke="#E7157B" stroke-width="1.6"/>
+<rect x="1400" y="450" width="6" height="70" rx="2" fill="#E7157B"/>
+<text x="1414" y="470" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Amazon SES</text>
+<text x="1414" y="488" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">notification emails from a verified sender</text>
+<rect x="1400" y="540" width="370" height="75" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="1400" y="540" width="6" height="75" rx="2" fill="#ED7100"/>
+<text x="1414" y="560" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">EKS control plane (AWS-managed)</text>
+<text x="1414" y="578" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">API: private endpoint for Jenkins and bastion,</text>
+<text x="1414" y="594" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">public endpoint limited to the admin CIDR</text>
+<rect x="1400" y="635" width="370" height="70" rx="8" fill="#ffffff" stroke="#7AA116" stroke-width="1.6"/>
+<rect x="1400" y="635" width="6" height="70" rx="2" fill="#7AA116"/>
+<text x="1414" y="655" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Terraform state</text>
+<text x="1414" y="673" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">S3 bucket · versioned · encrypted (bootstrap)</text>
+<rect x="1400" y="895" width="370" height="140" rx="8" fill="#ffffff" stroke="#7AA116" stroke-width="1.6"/>
+<rect x="1400" y="895" width="6" height="140" rx="2" fill="#7AA116"/>
+<text x="1414" y="915" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Amazon S3 · documents bucket</text>
+<text x="1414" y="933" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">payslips/ (PDF payslips)</text>
+<text x="1414" y="949" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">documents/ (employee uploads, HR letters)</text>
+<text x="1414" y="965" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">private · SSE · versioning · HTTPS only</text>
+<text x="1414" y="981" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">documents → Standard-IA after 90 days</text>
+<text x="1414" y="997" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">IRSA policy: GetObject + PutObject only</text>
+<rect x="20" y="95" width="210" height="80" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
+<rect x="20" y="95" width="6" height="80" rx="2" fill="#24292f"/>
+<text x="34" y="115" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">GitHub repository</text>
+<text x="34" y="133" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">app/ · terraform/ · helm/</text>
+<text x="34" y="149" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">k8s/ · Jenkinsfile</text>
+<rect x="60" y="225" width="170" height="90" rx="8" fill="#ffffff" stroke="#1f6feb" stroke-width="1.6"/>
+<rect x="60" y="225" width="6" height="90" rx="2" fill="#1f6feb"/>
+<text x="74" y="245" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Users (browser)</text>
+<text x="74" y="263" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Employees</text>
+<text x="74" y="279" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Managers · HR · Admin</text>
+<rect x="20" y="400" width="210" height="100" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
+<rect x="20" y="400" width="6" height="100" rx="2" fill="#24292f"/>
+<text x="34" y="420" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Developer laptop</text>
+<text x="34" y="438" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">git push</text>
+<text x="34" y="454" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">terraform apply</text>
+<text x="34" y="470" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">kubectl · helm (admin)</text>
+<rect x="20" y="560" width="225" height="300" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1"/>
+<text x="34" y="584" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Legend</text>
+<path d="M 34 610 L 84 610" fill="none" stroke="#1f6feb" stroke-width="2.2" marker-end="url(#a-user)"/>
+<text x="94" y="614" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="start">User traffic</text>
+<path d="M 34 638 L 84 638" fill="none" stroke="#1f6feb" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#a-user)"/>
+<text x="94" y="642" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="start">Presigned download</text>
+<path d="M 34 666 L 84 666" fill="none" stroke="#d9480f" stroke-width="2.2" marker-end="url(#a-ci)"/>
+<text x="94" y="670" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="start">CI/CD</text>
+<path d="M 34 694 L 84 694" fill="none" stroke="#2b8a3e" stroke-width="2.2" marker-end="url(#a-data)"/>
+<text x="94" y="698" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="start">Data and AWS API calls</text>
+<path d="M 34 722 L 84 722" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#a-mgmt)"/>
+<text x="94" y="726" font-size="12" font-weight="normal" fill="#1f2933" text-anchor="start">Management / control</text>
+<text x="34" y="760" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">IRSA: a pod gets AWS rights</text>
+<text x="34" y="776" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">from its Kubernetes service</text>
+<text x="34" y="792" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">account. No AWS keys exist in</text>
+<text x="34" y="808" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">the app, the image or Git.</text>
+<text x="34" y="836" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Every secret: Secrets Manager</text>
+<text x="34" y="852" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">→ ESO → Kubernetes Secret.</text>
+<path d="M 230 272 L 266 272" fill="none" stroke="#1f6feb" stroke-width="2.2" marker-end="url(#a-user)"/>
+<path d="M 312 272 L 378 272" fill="none" stroke="#1f6feb" stroke-width="2.2" marker-end="url(#a-user)"/>
+<text x="320" y="262" font-size="10.5" font-weight="bold" fill="#1f6feb" text-anchor="start">HTTP</text>
+<path d="M 560 320 L 560 460 L 750 460 L 750 498" fill="none" stroke="#1f6feb" stroke-width="2.2" marker-end="url(#a-user)"/>
+<rect x="564" y="377.5" width="208" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
+<text x="568" y="389" font-size="11.5" font-weight="bold" fill="#1f6feb" text-anchor="start">HTTP → pod IPs (target-type ip)</text>
+<path d="M 850 527 L 878 540" fill="none" stroke="#1f6feb" stroke-width="1.8" marker-end="url(#a-user)"/>
+<path d="M 850 602 L 878 640" fill="none" stroke="#1f6feb" stroke-width="1.8" marker-end="url(#a-user)"/>
+<path d="M 440 500 L 440 322" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#a-mgmt)"/>
+<rect x="444" y="340.5" width="117" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
+<text x="448" y="352" font-size="11.5" font-weight="bold" fill="#6b7280" text-anchor="start">creates &amp; updates</text>
+<path d="M 230 115 L 805 115 L 805 198" fill="none" stroke="#d9480f" stroke-width="2.2" marker-end="url(#a-ci)"/>
+<text x="300" y="108" font-size="11.5" font-weight="bold" fill="#d9480f" text-anchor="start">Jenkins polls the repo every 5 minutes (pollSCM)</text>
+<path d="M 35 400 L 35 177" fill="none" stroke="#d9480f" stroke-width="2.2" marker-end="url(#a-ci)"/>
+<path d="M 230 450 L 258 450" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#a-mgmt)"/>
+<path d="M 960 208 L 1398 208" fill="none" stroke="#d9480f" stroke-width="2.2" marker-end="url(#a-ci)"/>
+<rect x="1236" y="188.5" width="79" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
+<text x="1240" y="200" font-size="11.5" font-weight="bold" fill="#d9480f" text-anchor="start">docker push</text>
+<path d="M 805 355 L 805 428" fill="none" stroke="#d9480f" stroke-width="2.2" marker-end="url(#a-ci)"/>
+<rect x="809" y="377.5" width="143" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
+<text x="813" y="389" font-size="11.5" font-weight="bold" fill="#d9480f" text-anchor="start">helm upgrade --atomic</text>
+<path d="M 1100 500 L 1100 342" fill="none" stroke="#2b8a3e" stroke-width="2.2" marker-end="url(#a-data)"/>
+<rect x="1104" y="377.5" width="117" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
+<text x="1108" y="389" font-size="11.5" font-weight="bold" fill="#2b8a3e" text-anchor="start">HTTPS to AWS APIs</text>
+<path d="M 1200 300 L 1383 300" fill="none" stroke="#2b8a3e" stroke-width="2.2"/>
+<path d="M 1383 195 L 1383 965" fill="none" stroke="#2b8a3e" stroke-width="2.2"/>
+<path d="M 1383 195 L 1398 195" fill="none" stroke="#2b8a3e" stroke-width="2.2" marker-end="url(#a-data)"/>
+<path d="M 1383 282 L 1398 282" fill="none" stroke="#2b8a3e" stroke-width="2.2" marker-end="url(#a-data)"/>
+<path d="M 1383 387 L 1398 387" fill="none" stroke="#2b8a3e" stroke-width="2.2" marker-end="url(#a-data)"/>
+<path d="M 1383 485 L 1398 485" fill="none" stroke="#2b8a3e" stroke-width="2.2" marker-end="url(#a-data)"/>
+<path d="M 1383 965 L 1398 965" fill="none" stroke="#2b8a3e" stroke-width="2.2" marker-end="url(#a-data)"/>
+<path d="M 595 712 L 648 690" fill="none" stroke="#2b8a3e" stroke-width="1.8" marker-end="url(#a-data)"/>
+<path d="M 850 680 L 878 668" fill="none" stroke="#2b8a3e" stroke-width="1.8" marker-end="url(#a-data)"/>
+<path d="M 1125 715 L 1125 948" fill="none" stroke="#2b8a3e" stroke-width="2.2" marker-end="url(#a-data)"/>
+<rect x="1129" y="878.5" width="111" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
+<text x="1133" y="890" font-size="11.5" font-weight="bold" fill="#2b8a3e" text-anchor="start">JDBC :3306 · TLS</text>
+<path d="M 1270 570 L 1270 1005 L 1182 1005" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#a-mgmt)"/>
+<rect x="1274" y="748.5" width="40" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
+<text x="1278" y="760" font-size="11.5" font-weight="bold" fill="#6b7280" text-anchor="start">admin</text>
+<rect x="1274" y="764.5" width="40" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
+<text x="1278" y="776" font-size="11.5" font-weight="bold" fill="#6b7280" text-anchor="start">:3306</text>
+<path d="M 230 300 L 248 300 L 248 1147 L 1585 1147 L 1585 1037" fill="none" stroke="#1f6feb" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#a-user)"/>
+<rect x="696" y="1139.5" width="684" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
+<text x="700" y="1151" font-size="11.5" font-weight="bold" fill="#1f6feb" text-anchor="start">Payslip and document downloads go straight from S3 to the browser: presigned link, valid 5 minutes, HTTPS</text>
+<rect x="300" y="131.5" width="536" height="21.5" rx="3" fill="#fdfbff"/>
+<text x="305" y="147" font-size="13.5" font-weight="bold" fill="#6b3fd4" text-anchor="start">VPC 10.0.0.0/16 · 2 Availability Zones (ap-south-1a, ap-south-1b)</text>
+<rect x="315" y="165.5" width="318" height="20.5" rx="3" fill="#eef7ea"/>
+<text x="320" y="180" font-size="12.5" font-weight="bold" fill="#4d6b0f" text-anchor="start">Public subnets · 10.0.0.0/24, 10.0.1.0/24</text>
+<rect x="315" y="400.5" width="340" height="20.5" rx="3" fill="#eaf4fa"/>
+<text x="320" y="415" font-size="12.5" font-weight="bold" fill="#0f5f8c" text-anchor="start">Private subnets · 10.0.10.0/24, 10.0.11.0/24</text>
+<rect x="315" y="905.5" width="550" height="20.5" rx="3" fill="#f6effa"/>
+<text x="320" y="920" font-size="12.5" font-weight="bold" fill="#7b2f96" text-anchor="start">Database subnets · 10.0.20.0/24, 10.0.21.0/24 · no route to the internet</text>
+<rect x="330" y="435" width="408" height="21" rx="3" fill="#fff8f0"/>
+<text x="335" y="450" font-size="13" font-weight="bold" fill="#b45309" text-anchor="start">Amazon EKS 1.35 · managed node group: 2 × t3.medium</text>
+<rect x="345" y="474.5" width="86" height="19.5" rx="3" fill="#ffffff"/>
+<text x="350" y="488" font-size="11.5" font-weight="bold" fill="#8a5a2b" text-anchor="start">kube-system</text>
+<rect x="635" y="474.5" width="245" height="19.5" rx="3" fill="#ffffff"/>
+<text x="640" y="488" font-size="11.5" font-weight="bold" fill="#8a5a2b" text-anchor="start">namespace hr-portal (Helm release)</text>
+</svg>
