@@ -23,6 +23,8 @@
         Temporary password: <span class="credentials" th:text="${onboardedPassword}"></span>
     </div>
     <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="alert info" th:if="${employee.active and employee.lastWorkingDay != null}"
+         th:text="'Serving notice: resignation accepted, last working day ' + ${#temporals.format(employee.lastWorkingDay, 'd MMM yyyy')} + '.'"></div>
     <div class="alert warn" th:unless="${employee.active}"
          th:text="'Left the company. Last working day ' + ${employee.lastWorkingDay} + ' (' + ${employee.exitReason} + ').'"></div>
 

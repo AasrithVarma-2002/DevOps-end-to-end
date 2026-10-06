@@ -196,6 +196,10 @@ public class LeaveService {
         if (app.halfDay() && !start.equals(end)) {
             throw new BusinessRuleException("A half day must start and end on the same date");
         }
+        if (employee.getLastWorkingDay() != null && end.isAfter(employee.getLastWorkingDay())) {
+            throw new BusinessRuleException("Your last working day is " + employee.getLastWorkingDay()
+                    + ". Leave can't go beyond it.");
+        }
         if (start.getYear() != end.getYear()) {
             throw new BusinessRuleException("Leave cannot cross the year end. Submit one request for each year.");
         }
@@ -364,6 +368,21 @@ public class LeaveService {
             notifications.notifyEmployee(request.getEmployee(), "Your " + describe(request) + " was cancelled by HR", "/leave");
         }
         return request;
+    }
+
+    /**
+     * A resignation was accepted: leave that starts after the last working day can't be taken,
+     * so it is cancelled (approved days refunded). Returns how many requests were cancelled.
+     */
+    public int cancelAfter(Employee employee, LocalDate lastWorkingDay) {
+        int cancelled = 0;
+        for (LeaveRequest r : requests.findByEmployee_IdAndStatusIn(employee.getId(), ACTIVE)) {
+            if (r.getStartDate().isAfter(lastWorkingDay)) {
+                cancelInternal(r);
+                cancelled++;
+            }
+        }
+        return cancelled;
     }
 
     /** Offboarding: cancels everything not yet taken. Returns how many requests were cancelled. */

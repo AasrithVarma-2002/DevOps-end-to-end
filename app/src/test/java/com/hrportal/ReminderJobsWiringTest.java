@@ -25,5 +25,9 @@ class ReminderJobsWiringTest {
         Integer rows = jdbc.queryForObject("select count(*) from shedlock where name = 'payrollReminder'", Integer.class);
         assertThat(rows).isEqualTo(1);
         assertThat(lockProvider).isNotNull();
+
+        jobs.completeResignations();
+        Integer exitRows = jdbc.queryForObject("select count(*) from shedlock where name = 'completeResignations'", Integer.class);
+        assertThat(exitRows).isEqualTo(1);
     }
 }

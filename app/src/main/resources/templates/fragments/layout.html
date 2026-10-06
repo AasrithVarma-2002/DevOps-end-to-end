@@ -31,6 +31,7 @@
             <a th:href="@{/hr/attendance}" th:classappend="${active == 'hr-attendance'} ? 'active'">Attendance</a>
             <a th:href="@{/hr/payroll}" th:classappend="${active == 'hr-payroll'} ? 'active'">Payroll</a>
             <a th:href="@{/hr/documents}" th:classappend="${active == 'hr-documents'} ? 'active'">Documents</a>
+            <a th:href="@{/hr/resignations}" th:classappend="${active == 'hr-resignations'} ? 'active'">Resignations</a>
             <a th:href="@{/hr/reports}" th:classappend="${active == 'hr-reports'} ? 'active'">Reports</a>
             <a th:href="@{/hr/departments}" th:classappend="${active == 'hr-departments'} ? 'active'">Departments</a>
             <a th:href="@{/hr/holidays}" th:classappend="${active == 'hr-holidays'} ? 'active'">Holidays</a>
@@ -53,6 +54,7 @@
             </summary>
             <div class="dropdown">
                 <a th:if="${me.hasEmployeeRecord()}" th:href="@{/profile}">My profile</a>
+                <a th:if="${me.hasEmployeeRecord()}" th:href="@{/resignation}">Resignation</a>
                 <a th:href="@{/account/password}">Change password</a>
                 <form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form>
             </div>
@@ -115,6 +117,10 @@
         </th:block>
     </div>
 </div>
+
+<!-- status pill for a resignation -->
+<span th:fragment="resignationStatus(status)" class="pill" th:classappend="${'res-' + #strings.toLowerCase(status.name())}"
+      th:text="${status.label}">Waiting for HR</span>
 
 <!-- status pill for an employee document -->
 <span th:fragment="docStatus(status)" class="pill" th:classappend="${'doc-' + #strings.toLowerCase(status.name())}"

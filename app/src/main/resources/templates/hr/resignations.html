@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Resignations')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('hr-resignations')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>Resignations</h1>
+            <p class="muted">Accept a resignation to fix the last working day. People leave automatically the night after it.</p></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="stack">
+        <h2 th:text="'Waiting for HR (' + ${#lists.size(waiting)} + ')'">Waiting for HR</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Employee</th><th>Submitted</th><th>Requested last day</th><th>Reason</th><th>Decision</th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(waiting)}"><td colspan="5" class="empty">No resignations are waiting.</td></tr>
+                <tr th:each="r : ${waiting}">
+                    <td><a th:href="@{/hr/employees/{id}(id=${r.employeeId})}"><strong th:text="${r.employeeName}"></strong></a>
+                        <div class="small muted" th:text="${r.employee.jobTitle} + ' · ' + ${r.employee.department.name}"></div></td>
+                    <td class="small" th:text="${#temporals.format(r.submittedAt, 'd MMM yyyy')}"></td>
+                    <td><span th:text="${r.requestedLastDay}"></span>
+                        <div th:if="${svc.isShortNotice(r)}" class="pill st-pending_hr">Short notice</div></td>
+                    <td class="small" th:text="${r.reason}"></td>
+                    <td>
+                        <form class="decision" method="post" th:action="@{/hr/resignations/{id}/accept(id=${r.id})}">
+                            <input type="date" name="lastWorkingDay" th:id="'d' + ${r.id}" th:value="${r.requestedLastDay}" aria-label="Last working day">
+                            <input name="note" th:id="'n' + ${r.id}" placeholder="Note (needed to decline)" maxlength="500" aria-label="Note">
+                            <button type="submit" class="btn small approve">Accept</button>
+                            <button type="submit" class="btn small danger" th:formaction="@{/hr/resignations/{id}/decline(id=${r.id})}">Decline</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="stack">
+        <h2>Serving notice</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Employee</th><th>Last working day</th><th class="num">Days left</th><th>Accepted by</th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(serving)}"><td colspan="4" class="empty">Nobody is serving notice.</td></tr>
+                <tr th:each="r : ${serving}">
+                    <td><a th:href="@{/hr/employees/{id}(id=${r.employeeId})}" th:text="${r.employeeName}"></a></td>
+                    <td th:text="${#temporals.format(r.lastWorkingDay, 'EEE d MMM yyyy')}"></td>
+                    <td class="num" th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(today, r.lastWorkingDay)}"></td>
+                    <td class="small" th:text="${r.decidedBy}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="stack" th:unless="${#lists.isEmpty(closed)}">
+        <h2>Recently closed</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Employee</th><th>Status</th><th>Last working day</th><th>Note</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${closed}">
+                    <td th:text="${r.employeeName}"></td>
+                    <td><span th:replace="~{fragments/layout :: resignationStatus(${r.status})}"></span></td>
+                    <td th:text="${r.lastWorkingDay} ?: '—'"></td>
+                    <td class="small" th:text="${r.hrNote} ?: '—'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

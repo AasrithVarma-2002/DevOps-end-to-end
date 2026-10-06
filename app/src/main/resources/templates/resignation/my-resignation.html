@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Resignation')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('')}"></header>
+<main class="stack">
+    <div class="page-head">
+        <div><h1>Resignation</h1>
+            <p class="muted">Resign from the company here. Your manager and HR are told straight away.</p></div>
+    </div>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="card" th:if="${current != null}">
+        <h2>Your resignation</h2>
+        <dl class="details">
+            <dt>Status</dt><dd><span th:replace="~{fragments/layout :: resignationStatus(${current.status})}"></span></dd>
+            <dt>Submitted</dt><dd th:text="${#temporals.format(current.submittedAt, 'd MMM yyyy')}"></dd>
+            <dt>Requested last day</dt><dd th:text="${#temporals.format(current.requestedLastDay, 'EEE d MMM yyyy')}"></dd>
+            <th:block th:if="${current.lastWorkingDay != null}">
+                <dt>Last working day</dt><dd><strong th:text="${#temporals.format(current.lastWorkingDay, 'EEE d MMM yyyy')}"></strong></dd>
+            </th:block>
+            <dt>Reason</dt><dd th:text="${current.reason}"></dd>
+            <th:block th:if="${current.hrNote}"><dt>Note from HR</dt><dd th:text="${current.hrNote}"></dd></th:block>
+        </dl>
+        <p class="small muted" th:if="${current.status.name() == 'SUBMITTED'}">
+            HR will accept it and confirm your last working day. Until then you can withdraw it.</p>
+        <p class="small muted" th:if="${current.status.name() == 'ACCEPTED'}">
+            Keep working as usual until your last working day: attendance, leave (up to that day) and payslips all carry on.
+            Your sign-in is switched off the night after your last working day.</p>
+        <form th:if="${current.status.name() == 'SUBMITTED'}" th:action="@{/resignation/withdraw}" method="post" class="actions">
+            <button type="submit" class="btn">Withdraw resignation</button>
+        </form>
+    </section>
+
+    <form class="card form" th:if="${current == null}" th:action="@{/resignation}" method="post">
+        <h2>Resign</h2>
+        <p class="small muted" th:text="'The notice period is ' + ${noticeDays} + ' days. You can ask for an earlier last day; HR decides.'">Notice period</p>
+        <label for="lastDay">Requested last working day
+            <input id="lastDay" type="date" name="lastDay" required th:value="${defaultLastDay}" th:min="${today}"></label>
+        <label for="reason">Reason
+            <textarea id="reason" name="reason" rows="4" maxlength="1000" required
+                      placeholder="For example: moving to another city"></textarea></label>
+        <div class="actions"><button type="submit" class="btn danger">Submit resignation</button></div>
+    </form>
+
+    <section class="stack" th:unless="${#lists.isEmpty(history)}">
+        <h2>History</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Submitted</th><th>Requested last day</th><th>Last working day</th><th>Status</th><th>Note from HR</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${history}">
+                    <td th:text="${#temporals.format(r.submittedAt, 'd MMM yyyy')}"></td>
+                    <td th:text="${r.requestedLastDay}"></td>
+                    <td th:text="${r.lastWorkingDay} ?: '—'"></td>
+                    <td><span th:replace="~{fragments/layout :: resignationStatus(${r.status})}"></span></td>
+                    <td class="small" th:text="${r.hrNote} ?: '—'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

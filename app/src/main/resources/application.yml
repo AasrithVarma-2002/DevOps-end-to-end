@@ -51,6 +51,9 @@ app:
   # Scheduled reminders (only one pod runs each, see ShedLock); false switches them off
   jobs:
     enabled: ${APP_JOBS_ENABLED:true}
+  # Resignations: the default notice period offered on the form (HR can agree any last day)
+  resignation:
+    notice-days: ${APP_RESIGNATION_NOTICE_DAYS:30}
   # Payslip PDFs and employee documents: a folder on disk locally, S3 in AWS (see the aws profile below)
   storage:
     type: ${APP_STORAGE_TYPE:local}

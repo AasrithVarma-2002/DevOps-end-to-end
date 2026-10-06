@@ -13,6 +13,7 @@ through a DevOps pipeline: Terraform → Docker → Amazon ECR → Jenkins → K
 | **3** | Payroll: monthly runs (draft → finalized), salary breakdown, loss of pay, PDF payslips stored in a private S3 bucket via IRSA | **Built** |
 | **4** | Email notifications (Amazon SES), scheduled reminders (ShedLock, one pod per job), CSV reports | **Built** (monitoring: next) |
 | **+** | Employee documents: uploads verified by HR, onboarding checklist, letters from HR, S3 presigned downloads | **Built** |
+| **+** | Resignation: employee resigns, HR accepts or declines, notice period, automatic exit the night after the last day | **Built** |
 
 ---
 
@@ -105,6 +106,7 @@ below it can.
   - weekdays 09:30: managers with leave requests waiting for them, and HR if any wait for HR
   - weekdays 20:00: people who checked in but haven't checked out
   - the 5th of each month 10:00: HR, if last month's payroll isn't run or finalized yet
+  - every night 00:15: people whose last working day has passed are offboarded (resignations)
 - **One pod per job:** every pod has the schedule, but **ShedLock** lets only the pod that takes
   the lock row in the `shedlock` table (Flyway `V5__shedlock.sql`) run it. Lock times use the
   database clock, so pods with slightly different clocks can't run a job twice.
@@ -136,6 +138,22 @@ below it can.
 - **Storage class:** after 90 days documents move to S3 Standard-IA (cheaper, still instant to
   open), a lifecycle rule in `terraform/s3.tf`.
 - **Database:** `employee_documents` (Flyway `V6__employee_documents.sql`).
+
+## Resignation
+
+- **The employee resigns** (top-right menu → Resignation): requested last working day (the form
+  offers today + the 30-day notice period, `APP_RESIGNATION_NOTICE_DAYS`) and a reason. Their
+  manager and HR are notified and emailed; an earlier day than the notice period is flagged
+  "short notice". One resignation at a time; it can be withdrawn until HR decides.
+- **HR decides** (HR → Resignations): **Accept** with the agreed last working day (defaults to
+  the requested one) or **Decline** with a reason. HR can't decide their own resignation.
+- **Notice period:** after acceptance the employee keeps working normally. Pay, attendance and
+  leave stop at the last working day: leave after it is cancelled (days refunded) and can't be
+  requested, and that month's payslip is pro-rated.
+- **Automatic exit:** a nightly job (00:15 India time, one pod via ShedLock) offboards everyone
+  whose last working day has passed: login disabled, remaining leave cancelled, team requests
+  moved to HR, HR notified. The resignation becomes Completed.
+- **Database:** `resignations` (Flyway `V7__resignations.sql`). Every step is in the audit log.
 
 ### Turning on emails in AWS
 
@@ -184,9 +202,9 @@ All demo employees use the password `Password@123`.
 cd app
 ./mvnw verify
 ```
-114 tests cover the leave rules, the approval flow, onboarding and offboarding, attendance,
+126 tests cover the leave rules, the approval flow, onboarding and offboarding, attendance,
 payroll, emails and reminders, reports, employee documents (file checks, verification, who may
-open what, presigned links), the password policy, account lockout, role-based access for every
+open what, presigned links), resignations (notice period, nightly exit), the password policy, account lockout, role-based access for every
 page, and the REST API.
 
 ---
