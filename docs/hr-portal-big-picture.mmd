@@ -1,0 +1,25 @@
+flowchart LR
+  dev([Developer]) -->|git push| gh[(GitHub repo)]
+  gh -->|polled every 5 min| jk[Jenkins on EC2]
+  jk -->|push image| ecr[(ECR)]
+  jk -->|helm upgrade| eks
+
+  user([Employees, managers, HR]) -->|HTTP| alb[Application Load Balancer]
+  subgraph eks[EKS cluster]
+    ing[Ingress] --> svc[Service] --> pods[HR Portal pods x2]
+    eso[External Secrets Operator]
+    lbc[AWS LB Controller]
+  end
+  alb --> ing
+  lbc -. creates .-> alb
+  ecr -->|pull image| pods
+
+  pods -->|JDBC over TLS| rds[(RDS MySQL 8.4)]
+  pods -->|PDFs| s3[(S3 documents bucket)]
+  pods -->|emails| ses[Amazon SES]
+  sm[(Secrets Manager)] --> eso -->|K8s Secret| pods
+
+  tf[[Terraform]] -. provisions .-> eks
+  tf -. provisions .-> rds
+  tf -. provisions .-> jk
+  tf -. provisions .-> sm
