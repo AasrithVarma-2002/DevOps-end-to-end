@@ -127,22 +127,11 @@
 <text x="1414" y="965" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">private · SSE · versioning · HTTPS only</text>
 <text x="1414" y="981" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">documents → Standard-IA after 90 days</text>
 <text x="1414" y="997" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">IRSA policy: GetObject + PutObject only</text>
-<rect x="20" y="95" width="210" height="80" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<rect x="20" y="95" width="6" height="80" rx="2" fill="#24292f"/>
-<text x="34" y="115" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">GitHub repository</text>
-<text x="34" y="133" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">app/ · terraform/ · helm/</text>
-<text x="34" y="149" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">k8s/ · Jenkinsfile</text>
 <rect x="60" y="225" width="170" height="90" rx="8" fill="#ffffff" stroke="#1f6feb" stroke-width="1.6"/>
 <rect x="60" y="225" width="6" height="90" rx="2" fill="#1f6feb"/>
 <text x="74" y="245" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Users (browser)</text>
 <text x="74" y="263" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Employees</text>
 <text x="74" y="279" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">Managers · HR · Admin</text>
-<rect x="20" y="400" width="210" height="100" rx="8" fill="#ffffff" stroke="#24292f" stroke-width="1.6"/>
-<rect x="20" y="400" width="6" height="100" rx="2" fill="#24292f"/>
-<text x="34" y="420" font-size="13" font-weight="bold" fill="#1f2933" text-anchor="start">Developer laptop</text>
-<text x="34" y="438" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">git push</text>
-<text x="34" y="454" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">terraform apply</text>
-<text x="34" y="470" font-size="11.5" font-weight="normal" fill="#46525e" text-anchor="start">kubectl · helm (admin)</text>
 <rect x="20" y="560" width="225" height="300" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1"/>
 <text x="34" y="584" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Legend</text>
 <path d="M 34 610 L 84 610" fill="none" stroke="#1f6feb" stroke-width="2.2" marker-end="url(#a-user)"/>
@@ -172,10 +161,6 @@
 <path d="M 440 500 L 440 322" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#a-mgmt)"/>
 <rect x="444" y="340.5" width="117" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
 <text x="448" y="352" font-size="11.5" font-weight="bold" fill="#6b7280" text-anchor="start">creates &amp; updates</text>
-<path d="M 230 115 L 805 115 L 805 198" fill="none" stroke="#d9480f" stroke-width="2.2" marker-end="url(#a-ci)"/>
-<text x="300" y="108" font-size="11.5" font-weight="bold" fill="#d9480f" text-anchor="start">Jenkins polls the repo every 5 minutes (pollSCM)</text>
-<path d="M 35 400 L 35 177" fill="none" stroke="#d9480f" stroke-width="2.2" marker-end="url(#a-ci)"/>
-<path d="M 230 450 L 258 450" fill="none" stroke="#6b7280" stroke-width="2.2" stroke-dasharray="6 4" marker-end="url(#a-mgmt)"/>
 <path d="M 960 208 L 1398 208" fill="none" stroke="#d9480f" stroke-width="2.2" marker-end="url(#a-ci)"/>
 <rect x="1236" y="188.5" width="79" height="16.5" rx="3" fill="#ffffff" opacity="0.92"/>
 <text x="1240" y="200" font-size="11.5" font-weight="bold" fill="#d9480f" text-anchor="start">docker push</text>
