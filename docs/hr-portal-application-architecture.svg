@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1250" viewBox="0 0 1800 1250" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5b6875"/></marker></defs>
+<rect x="0" y="0" width="1800" height="1250" rx="0" fill="#ffffff" stroke="#ffffff" stroke-width="0"/>
+<text x="30" y="40" font-size="26" font-weight="bold" fill="#111827" text-anchor="start">HR Portal Pro: application architecture</text>
+<text x="30" y="64" font-size="13.5" font-weight="normal" fill="#4b5563" text-anchor="start">Who uses it, the layers inside the Spring Boot app, its 10 modules, background jobs, and where data lives · runs as 2 pods on Amazon EKS</text>
+<rect x="30" y="85" width="1460" height="115" rx="10" fill="#f3effc" stroke="#6d3fc0" stroke-width="1.3"/>
+<text x="46" y="107" font-size="13" font-weight="bold" fill="#5a2ea8" text-anchor="start">Users (by role; each role can do everything of the roles to its right)</text>
+<rect x="60" y="118" width="320" height="66" rx="8" fill="#ffffff" stroke="#6d3fc0" stroke-width="1.6"/>
+<rect x="60" y="118" width="6" height="66" rx="2" fill="#6d3fc0"/>
+<text x="74" y="139" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Super Admin</text>
+<text x="74" y="158" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">logins, roles, unlock, reset</text>
+<rect x="415" y="118" width="320" height="66" rx="8" fill="#ffffff" stroke="#0f7a6b" stroke-width="1.6"/>
+<rect x="415" y="118" width="6" height="66" rx="2" fill="#0f7a6b"/>
+<text x="429" y="139" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">HR Admin</text>
+<text x="429" y="158" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">people, leave, payroll, documents</text>
+<rect x="770" y="118" width="320" height="66" rx="8" fill="#ffffff" stroke="#a15c00" stroke-width="1.6"/>
+<rect x="770" y="118" width="6" height="66" rx="2" fill="#a15c00"/>
+<text x="784" y="139" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Manager</text>
+<text x="784" y="158" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">team, approvals, team attendance</text>
+<rect x="1125" y="118" width="320" height="66" rx="8" fill="#ffffff" stroke="#1d5fb8" stroke-width="1.6"/>
+<rect x="1125" y="118" width="6" height="66" rx="2" fill="#1d5fb8"/>
+<text x="1139" y="139" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Employee</text>
+<text x="1139" y="158" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">leave, attendance, payslips, docs</text>
+<rect x="30" y="225" width="1460" height="100" rx="10" fill="#eef4fb" stroke="#1f4e79" stroke-width="1.3"/>
+<text x="46" y="247" font-size="13" font-weight="bold" fill="#1f4e79" text-anchor="start">Presentation · what the users talk to</text>
+<rect x="60" y="258" width="690" height="56" rx="8" fill="#ffffff" stroke="#1f4e79" stroke-width="1.6"/>
+<rect x="60" y="258" width="6" height="56" rx="2" fill="#1f4e79"/>
+<text x="74" y="279" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Web pages (Thymeleaf, server-rendered)</text>
+<text x="74" y="298" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">Dashboard, menus per role, forms, tables, bell notifications</text>
+<rect x="780" y="258" width="680" height="56" rx="8" fill="#ffffff" stroke="#1f4e79" stroke-width="1.6"/>
+<rect x="780" y="258" width="6" height="56" rx="2" fill="#1f4e79"/>
+<text x="794" y="279" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">REST API + Swagger UI (/api/**, /swagger-ui.html)</text>
+<text x="794" y="298" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">Same features and rules as the web pages · JSON · HTTP Basic</text>
+<rect x="30" y="350" width="1460" height="92" rx="10" fill="#fdf0f0" stroke="#c92a2a" stroke-width="1.3"/>
+<text x="46" y="372" font-size="13" font-weight="bold" fill="#a61e1e" text-anchor="start">Security · Spring Security, checked on every request</text>
+<rect x="60" y="380" width="220" height="52" rx="8" fill="#ffffff" stroke="#c92a2a" stroke-width="1.6"/>
+<rect x="60" y="380" width="6" height="52" rx="2" fill="#c92a2a"/>
+<text x="74" y="401" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Sign-in</text>
+<text x="74" y="420" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">BCrypt passwords</text>
+<rect x="296" y="380" width="220" height="52" rx="8" fill="#ffffff" stroke="#c92a2a" stroke-width="1.6"/>
+<rect x="296" y="380" width="6" height="52" rx="2" fill="#c92a2a"/>
+<text x="310" y="401" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Lockout</text>
+<text x="310" y="420" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">5 wrong tries</text>
+<rect x="532" y="380" width="220" height="52" rx="8" fill="#ffffff" stroke="#c92a2a" stroke-width="1.6"/>
+<rect x="532" y="380" width="6" height="52" rx="2" fill="#c92a2a"/>
+<text x="546" y="401" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">First login</text>
+<text x="546" y="420" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">change password, profile</text>
+<rect x="768" y="380" width="220" height="52" rx="8" fill="#ffffff" stroke="#c92a2a" stroke-width="1.6"/>
+<rect x="768" y="380" width="6" height="52" rx="2" fill="#c92a2a"/>
+<text x="782" y="401" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Roles by URL</text>
+<text x="782" y="420" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">/team · /hr · /admin</text>
+<rect x="1004" y="380" width="220" height="52" rx="8" fill="#ffffff" stroke="#c92a2a" stroke-width="1.6"/>
+<rect x="1004" y="380" width="6" height="52" rx="2" fill="#c92a2a"/>
+<text x="1018" y="401" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Ownership</text>
+<text x="1018" y="420" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">own payslips, docs, team</text>
+<rect x="1240" y="380" width="220" height="52" rx="8" fill="#ffffff" stroke="#c92a2a" stroke-width="1.6"/>
+<rect x="1240" y="380" width="6" height="52" rx="2" fill="#c92a2a"/>
+<text x="1254" y="401" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">CSRF + sessions</text>
+<text x="1254" y="420" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">sessions in MySQL</text>
+<rect x="30" y="467" width="1460" height="330" rx="10" fill="#eef7ea" stroke="#2b8a3e" stroke-width="1.3"/>
+<text x="46" y="489" font-size="13" font-weight="bold" fill="#2b6a2b" text-anchor="start">Business modules · services enforce every rule, write the audit log and send notifications</text>
+<rect x="60" y="500" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="60" y="500" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="74" y="521" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Employees</text>
+<text x="74" y="540" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">onboard with temporary password</text>
+<text x="74" y="556" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">edit job, salary, manager</text>
+<text x="74" y="572" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">offboard: login off, leave cancelled</text>
+<rect x="345" y="500" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="345" y="500" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="359" y="521" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Leave</text>
+<text x="359" y="540" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">6 types, balances, half days</text>
+<text x="359" y="556" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">manager → HR (over 5 days)</text>
+<text x="359" y="572" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">weekends and holidays skipped</text>
+<rect x="630" y="500" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="630" y="500" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="644" y="521" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Attendance</text>
+<text x="644" y="540" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">check in / check out</text>
+<text x="644" y="556" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">monthly calendar, half days</text>
+<text x="644" y="572" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">HR corrections with reason</text>
+<rect x="915" y="500" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="915" y="500" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="929" y="521" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Payroll &amp; payslips</text>
+<text x="929" y="540" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">draft → recalculate → finalize</text>
+<text x="929" y="556" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">pro-rated pay, PF, prof. tax</text>
+<text x="929" y="572" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">PDF payslips (OpenPDF)</text>
+<rect x="1200" y="500" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="1200" y="500" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="1214" y="521" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Documents</text>
+<text x="1214" y="540" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">uploads checked by content</text>
+<text x="1214" y="556" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">HR verify / reject, checklist</text>
+<text x="1214" y="572" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">letters from HR</text>
+<rect x="60" y="645" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="60" y="645" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="74" y="666" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Resignation</text>
+<text x="74" y="685" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">employee resigns, can withdraw</text>
+<text x="74" y="701" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">HR accepts or declines</text>
+<text x="74" y="717" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">notice period, automatic exit</text>
+<rect x="345" y="645" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="345" y="645" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="359" y="666" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Reports</text>
+<text x="359" y="685" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">attendance, leave balances,</text>
+<text x="359" y="701" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">payroll register as CSV</text>
+<text x="359" y="717" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">formula-safe for Excel</text>
+<rect x="630" y="645" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="630" y="645" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="644" y="666" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Departments &amp; holidays</text>
+<text x="644" y="685" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">company structure</text>
+<text x="644" y="701" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">public holiday calendar</text>
+<text x="644" y="717" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">used by leave and attendance</text>
+<rect x="915" y="645" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="915" y="645" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="929" y="666" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Notifications &amp; email</text>
+<text x="929" y="685" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">bell icon in the app</text>
+<text x="929" y="701" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">same message by email</text>
+<text x="929" y="717" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">sent only after a change is saved</text>
+<rect x="1200" y="645" width="265" height="125" rx="8" fill="#ffffff" stroke="#2b8a3e" stroke-width="1.6"/>
+<rect x="1200" y="645" width="6" height="125" rx="2" fill="#2b8a3e"/>
+<text x="1214" y="666" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Audit log</text>
+<text x="1214" y="685" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">who did what, when</text>
+<text x="1214" y="701" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">old → new values</text>
+<text x="1214" y="717" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">searchable by record type</text>
+<rect x="30" y="822" width="1460" height="92" rx="10" fill="#fff6e6" stroke="#c98a1b" stroke-width="1.3"/>
+<text x="46" y="844" font-size="13" font-weight="bold" fill="#8a4b00" text-anchor="start">Background jobs · India time · only one pod runs each (ShedLock lock row in MySQL)</text>
+<rect x="60" y="852" width="330" height="52" rx="8" fill="#ffffff" stroke="#c98a1b" stroke-width="1.6"/>
+<rect x="60" y="852" width="6" height="52" rx="2" fill="#c98a1b"/>
+<text x="74" y="873" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Weekdays 09:30</text>
+<text x="74" y="892" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">leave waiting → managers, HR</text>
+<rect x="415" y="852" width="330" height="52" rx="8" fill="#ffffff" stroke="#c98a1b" stroke-width="1.6"/>
+<rect x="415" y="852" width="6" height="52" rx="2" fill="#c98a1b"/>
+<text x="429" y="873" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Weekdays 20:00</text>
+<text x="429" y="892" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">forgot to check out → employee</text>
+<rect x="770" y="852" width="330" height="52" rx="8" fill="#ffffff" stroke="#c98a1b" stroke-width="1.6"/>
+<rect x="770" y="852" width="6" height="52" rx="2" fill="#c98a1b"/>
+<text x="784" y="873" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">5th of month 10:00</text>
+<text x="784" y="892" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">payroll not finished → HR</text>
+<rect x="1125" y="852" width="330" height="52" rx="8" fill="#ffffff" stroke="#c98a1b" stroke-width="1.6"/>
+<rect x="1125" y="852" width="6" height="52" rx="2" fill="#c98a1b"/>
+<text x="1139" y="873" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Every night 00:15</text>
+<text x="1139" y="892" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">last day passed → offboard</text>
+<rect x="30" y="939" width="1460" height="270" rx="10" fill="#f6effa" stroke="#a24bc0" stroke-width="1.3"/>
+<text x="46" y="961" font-size="13" font-weight="bold" fill="#7b2f96" text-anchor="start">Data and services</text>
+<rect x="60" y="972" width="520" height="222" rx="8" fill="#ffffff" stroke="#C925D1" stroke-width="1.6"/>
+<rect x="60" y="972" width="6" height="222" rx="2" fill="#C925D1"/>
+<text x="74" y="993" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Amazon RDS for MySQL 8.4</text>
+<text x="74" y="1012" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">Schema managed by Flyway (V1 … V7):</text>
+<text x="74" y="1028" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">departments · employees · user_accounts</text>
+<text x="74" y="1044" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">leave_requests · leave_balances · holidays</text>
+<text x="74" y="1060" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">attendance_records · payroll_runs · payslips</text>
+<text x="74" y="1076" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">employee_documents · resignations</text>
+<text x="74" y="1092" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">notifications · audit_log · sessions · shedlock</text>
+<text x="74" y="1108" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">encrypted · TLS · private subnets only</text>
+<rect x="605" y="972" width="420" height="130" rx="8" fill="#ffffff" stroke="#7AA116" stroke-width="1.6"/>
+<rect x="605" y="972" width="6" height="130" rx="2" fill="#7AA116"/>
+<text x="619" y="993" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Amazon S3 · documents bucket</text>
+<text x="619" y="1012" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">payslips/ · PDF payslips</text>
+<text x="619" y="1028" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">documents/ · employee uploads, HR letters</text>
+<text x="619" y="1044" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">private, encrypted, versioned</text>
+<text x="619" y="1060" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">downloads by 5-minute presigned link</text>
+<rect x="605" y="1117" width="420" height="77" rx="8" fill="#ffffff" stroke="#E7157B" stroke-width="1.6"/>
+<rect x="605" y="1117" width="6" height="77" rx="2" fill="#E7157B"/>
+<text x="619" y="1138" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">Amazon SES</text>
+<text x="619" y="1157" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">notification emails from a verified sender</text>
+<text x="619" y="1173" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">sandbox: verified recipients only</text>
+<rect x="1050" y="972" width="410" height="130" rx="8" fill="#ffffff" stroke="#DD344C" stroke-width="1.6"/>
+<rect x="1050" y="972" width="6" height="130" rx="2" fill="#DD344C"/>
+<text x="1064" y="993" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">AWS Secrets Manager</text>
+<text x="1064" y="1012" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">database password, admin login,</text>
+<text x="1064" y="1028" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">email sender address</text>
+<text x="1064" y="1044" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">→ External Secrets Operator</text>
+<text x="1064" y="1060" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">→ Kubernetes Secret → pod settings</text>
+<rect x="1050" y="1117" width="410" height="77" rx="8" fill="#ffffff" stroke="#DD344C" stroke-width="1.6"/>
+<rect x="1050" y="1117" width="6" height="77" rx="2" fill="#DD344C"/>
+<text x="1064" y="1138" font-size="13.5" font-weight="bold" fill="#1f2933" text-anchor="start">IAM role for the pods (IRSA)</text>
+<text x="1064" y="1157" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">S3 read/write on the bucket, SES send only</text>
+<text x="1064" y="1173" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">no access keys anywhere</text>
+<rect x="1515" y="85" width="255" height="1124" rx="10" fill="#fbfcfd" stroke="#232F3E" stroke-width="1.8"/>
+<text x="1530" y="110" font-size="13.5" font-weight="bold" fill="#232F3E" text-anchor="start">Runs on and ships with</text>
+<rect x="1530" y="128" width="225" height="66" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="1530" y="128" width="6" height="66" rx="2" fill="#ED7100"/>
+<text x="1544" y="149" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Spring Boot 3 · Java 21</text>
+<text x="1544" y="168" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">one Docker image</text>
+<text x="1544" y="184" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">health checks for Kubernetes</text>
+<rect x="1530" y="208" width="225" height="82" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="1530" y="208" width="6" height="82" rx="2" fill="#ED7100"/>
+<text x="1544" y="229" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Amazon EKS</text>
+<text x="1544" y="248" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">2 pods behind a load balancer</text>
+<text x="1544" y="264" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">rolling updates, Helm chart</text>
+<text x="1544" y="280" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">PodDisruptionBudget</text>
+<rect x="1530" y="304" width="225" height="66" rx="8" fill="#ffffff" stroke="#8C4FFF" stroke-width="1.6"/>
+<rect x="1530" y="304" width="6" height="66" rx="2" fill="#8C4FFF"/>
+<text x="1544" y="325" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Application Load Balancer</text>
+<text x="1544" y="344" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">internet-facing, port 80</text>
+<text x="1544" y="360" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">created from the Ingress</text>
+<rect x="1530" y="384" width="225" height="82" rx="8" fill="#ffffff" stroke="#d9480f" stroke-width="1.6"/>
+<rect x="1530" y="384" width="6" height="82" rx="2" fill="#d9480f"/>
+<text x="1544" y="405" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Jenkins CI/CD</text>
+<text x="1544" y="424" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">new commit every 5 min:</text>
+<text x="1544" y="440" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">tests → build → Trivy scan</text>
+<text x="1544" y="456" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">→ push to ECR → helm deploy</text>
+<rect x="1530" y="480" width="225" height="50" rx="8" fill="#ffffff" stroke="#ED7100" stroke-width="1.6"/>
+<rect x="1530" y="480" width="6" height="50" rx="2" fill="#ED7100"/>
+<text x="1544" y="501" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Amazon ECR</text>
+<text x="1544" y="520" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">image tag = git commit</text>
+<rect x="1530" y="544" width="225" height="82" rx="8" fill="#ffffff" stroke="#7AA116" stroke-width="1.6"/>
+<rect x="1530" y="544" width="6" height="82" rx="2" fill="#7AA116"/>
+<text x="1544" y="565" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Terraform</text>
+<text x="1544" y="584" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">VPC, EKS, RDS, S3, SES,</text>
+<text x="1544" y="600" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">ECR, Secrets, IAM, Jenkins</text>
+<text x="1544" y="616" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">state in S3</text>
+<rect x="1530" y="640" width="225" height="50" rx="8" fill="#ffffff" stroke="#232F3E" stroke-width="1.6"/>
+<rect x="1530" y="640" width="6" height="50" rx="2" fill="#232F3E"/>
+<text x="1544" y="661" font-size="12.5" font-weight="bold" fill="#1f2933" text-anchor="start">Region ap-south-1</text>
+<text x="1544" y="680" font-size="11.8" font-weight="normal" fill="#46525e" text-anchor="start">Mumbai · 2 availability zones</text>
+<path d="M 400 200 L 400 256" stroke="#5b6875" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+<path d="M 1120 200 L 1120 256" stroke="#5b6875" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+<path d="M 760 325 L 760 378" stroke="#5b6875" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+<path d="M 760 442 L 760 498" stroke="#5b6875" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+<path d="M 1200 797 L 1200 850" stroke="#5b6875" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+<path d="M 320 914 L 320 970" stroke="#5b6875" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+<path d="M 815 914 L 815 970" stroke="#5b6875" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+<path d="M 1255 914 L 1255 970" stroke="#5b6875" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+</svg>
